@@ -1,3 +1,34 @@
+let editorViewRevision=0;
+function captureEditorView(anchor=document.activeElement){
+ const editor=$('#editor'),host=$('#blocks');
+ const inBlocks=anchor&&host.contains?.(anchor);
+ return {editor,host,top:editor.scrollTop||0,left:editor.scrollLeft||0,
+  page:typeof window==='undefined'?null:{x:window.scrollX,y:window.scrollY},
+  anchor:inBlocks?{tag:anchor.tagName,dataset:{...anchor.dataset},top:anchor.getBoundingClientRect().top}:null,
+  tracks:host.querySelectorAll?[...host.querySelectorAll('.media-track')].map(t=>t.scrollLeft):[]};
+}
+function restoreEditorView(view){
+ const {editor,host,anchor}=view;
+ let next;
+ if(anchor)next=[...host.querySelectorAll('button[data-op],input[data-key],input[data-extra],input[data-pause]')].find(el=>el.tagName===anchor.tag&&Object.entries(anchor.dataset).every(([key,value])=>el.dataset[key]===value));
+ if(next?.getClientRects().length)next.focus({preventScroll:true});
+ const revision=++editorViewRevision;
+ const restore=()=>{
+  if(revision!==editorViewRevision)return;
+  editor.scrollTop=view.top;editor.scrollLeft=view.left;
+  // Keep the control at the same screen position if a label above it wraps.
+  if(next?.getClientRects().length)editor.scrollTop+=next.getBoundingClientRect().top-anchor.top;
+  if(view.page&&(window.scrollX!==view.page.x||window.scrollY!==view.page.y))window.scrollTo(view.page.x,view.page.y);
+ };
+ host.querySelectorAll?.('.media-track').forEach((track,i)=>{if(view.tracks[i]!==undefined)track.scrollLeft=view.tracks[i]});
+ restore();
+ // WebKit may complete its focus scrolling at the next layout frame.
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>{if(editor.open)restore()});
+}
+// A fresh user gesture must win over any queued layout correction.
+document.addEventListener?.('pointerdown',()=>{editorViewRevision++},true);
+document.addEventListener?.('touchmove',()=>{editorViewRevision++},{passive:true,capture:true});
+document.addEventListener?.('wheel',()=>{editorViewRevision++},{passive:true,capture:true});
 const weightModes=[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']];
 function measureFor(e){return e.measure||find('exercises',e.exerciseId)?.measure||'reps'}
 function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return data.variationCategories.filter(c=>ids.includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===e.exerciseId))}
@@ -21,8 +52,11 @@ function variationSummary(e,s){
 }
 function hasSetOverrides(s){return Object.keys(s.variations||{}).length>0||Object.hasOwn(s,'weightMode')}
 function rememberBlockUI(){return [...document.querySelectorAll('#blocks details[open]')].map(el=>el.dataset.panel)}
-function renderBlocks(openPanels=rememberBlockUI()){
- const focused=document.activeElement,focusKey=focused?.dataset?.focus,emom=$('#method')?.value==='emom';
+function renderBlocks(openPanels=rememberBlockUI(),anchor=document.activeElement,preserve=true){
+ if(!preserve)editorViewRevision++;
+ const view=preserve?captureEditorView(anchor):null,host=$('#blocks'),oldMinHeight=host.style?.minHeight||'';
+ if(host.style)host.style.minHeight=(host.getBoundingClientRect().height||0)+'px';
+ const emom=$('#method')?.value==='emom';
  if($('#emomSettings'))$('#emomSettings').hidden=!emom;
  if($('#appendPause'))$('#appendPause').hidden=!blocks.some(e=>e.type!=='pause');
  $('#blocks').innerHTML=blocks.map((e,i)=>{
@@ -37,7 +71,8 @@ function renderBlocks(openPanels=rememberBlockUI()){
      <details class="set-variation-panel" id="${panel}" data-panel="${panel}" ${openPanels.includes(panel)?'open':''}><summary class="sr-only">Variationen Set ${j+1}</summary><div class="mini-head"><strong>Variationen · Set ${j+1}</strong><button type="button" data-op="set-variations" data-block="${i}" data-set="${j}" aria-label="Variationen Set ${j+1} schließen">✕</button></div><p class="hint">${overridden?'Dieses Set hat eigene Einstellungen.':'Dieses Set verwendet die Vorgabe der Übung.'}</p>${variationMarkup(e,i,j)}<button type="button" data-op="reset-variations" data-block="${i}" data-set="${j}">Vorgabe der Übung übernehmen</button></details>`;
    }).join('')}</div><button type="button" data-op="add" data-block="${i}">＋ Set hinzufügen</button></div>`;
  }).join('');
- if(focusKey){const next=[...document.querySelectorAll('[data-focus]')].find(el=>el.dataset.focus===focusKey);next?.focus({preventScroll:true})}
+ if(host.style)host.style.minHeight=oldMinHeight;
+ if(view)restoreEditorView(view);
 }
 function readBlocks(validate=false){
  document.querySelectorAll('#blocks input[data-pause]').forEach(el=>{
@@ -88,5 +123,5 @@ function handleBlockClick(event){
  if(op==='add')e.sets.push({reps:10,weight:'',partsText:'10'});
  if(op==='drop')e.sets.splice(j,1);
  if(op==='up'&&i>0)[blocks[i-1],blocks[i]]=[blocks[i],blocks[i-1]];
- renderBlocks(['remove','drop','up'].includes(op)?[]:panels);
+ renderBlocks(['remove','drop','up'].includes(op)?[]:panels,['remove','drop','up'].includes(op)?null:b);
 }

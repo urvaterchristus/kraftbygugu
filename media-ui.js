@@ -13,7 +13,7 @@ async function readExerciseMedia(file,kind){
 document.addEventListener('click',event=>{
  const button=event.target.closest('[data-media-index]');if(!button)return;
  const track=button.closest('.exercise-gallery').querySelector('.media-track');
- track.children[Number(button.dataset.mediaIndex)]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'});
+ track.scrollTo({left:-Number(button.dataset.mediaIndex)*track.clientWidth,behavior:'smooth'});
 });
 document.addEventListener('scroll',event=>{
  const track=event.target;if(!track.classList?.contains('media-track'))return;

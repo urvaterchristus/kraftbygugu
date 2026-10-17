@@ -96,3 +96,5 @@ Version 8.5: Der Bereich Variationen hat Filter für Alle, Global und Übungsspe
 Version 8.6: Trainings, Übungen und Variationen können ausschließlich in ihrem Bearbeitungsfenster gelöscht werden. Auf den Übersichtskarten entfällt der Löschbutton. Noch nicht gespeicherte Entwürfe werden über Abbrechen verworfen. Bestätigung, Schutz verwendeter Übungen/Kategorien und Wiederherstellung bleiben bestehen.
 
 Version 8.7: Routinen speichern Normal/EMOM sowie die EMOM-Minuten. Beim Start oder Übernehmen einer Routine werden Methode und Minuten in das neue Training kopiert. Bestehende Routinen ohne Methodenangabe gelten als Normal.
+
+Version 8.8: Änderungen an Variationen, Zusatzgewichten und Sets erhalten Scrollposition und Fokus. Medienwechsel scrollen ausschließlich horizontal. Neue Benutzer-Scrollgesten haben Vorrang vor einer ausstehenden Layoutkorrektur. Test: `node tests/scroll.test.cjs`.

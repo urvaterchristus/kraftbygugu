@@ -1,0 +1,15 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const editor={scrollTop:720,scrollLeft:3,open:true},page={scrollX:0,scrollY:130,scrollTo(x,y){this.scrollX=x;this.scrollY=y}},listeners={},frames=[];
+let offset=900;
+const anchor={tagName:'BUTTON',dataset:{op:'variation',block:'2',category:'grip',value:'over'},getBoundingClientRect:()=>({top:offset-editor.scrollTop})};
+const next={tagName:'BUTTON',dataset:{...anchor.dataset},getClientRects:()=>[{}],getBoundingClientRect:()=>({top:offset-editor.scrollTop}),focus(options){assert.equal(options.preventScroll,true)}};
+const track={scrollLeft:-200},host={contains:()=>true,querySelectorAll(selector){return selector==='.media-track'?[track]:[next]}};
+const ctx=vm.createContext({document:{activeElement:anchor,addEventListener:(type,fn)=>listeners[type]=fn},window:page,requestAnimationFrame:fn=>frames.push(fn),$:s=>s==='#editor'?editor:host});
+const source=fs.readFileSync(__dirname+'/../training-ui.js','utf8');vm.runInContext(source.slice(0,source.indexOf('const weightModes=')),ctx);
+ctx.view=vm.runInContext('captureEditorView()',ctx);
+editor.scrollTop=0;editor.scrollLeft=0;page.scrollY=0;track.scrollLeft=0;offset=918;
+vm.runInContext('restoreEditorView(view)',ctx);
+assert.equal(editor.scrollTop,738);assert.equal(editor.scrollLeft,3);assert.equal(page.scrollY,130);assert.equal(track.scrollLeft,-200);assert.equal(next.getBoundingClientRect().top,180);
+frames.shift()();assert.equal(editor.scrollTop,738);
+ctx.view=vm.runInContext('captureEditorView()',ctx);vm.runInContext('restoreEditorView(view)',ctx);listeners.touchmove();editor.scrollTop=900;frames.shift()();assert.equal(editor.scrollTop,900);
+console.log('PASS: dialog/page scroll, anchor pixel position, carousel position and user gesture override remain stable.');
