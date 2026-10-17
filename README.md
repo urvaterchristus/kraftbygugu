@@ -92,3 +92,5 @@ Version 8.2: In Training und Routine öffnet ＋ bei leerer Auswahl direkt das A
 Version 8.3: Übungen haben ein separates Vorschaubild und Video (je maximal 30 MB). Die Galerie zeigt zuerst das Bild; Wischen nach rechts oder der Video-Button öffnet das Video. Videos starten nicht automatisch. Bisherige Einzelmedien bleiben erhalten und werden beim Bearbeiten in die getrennten Felder übernommen. Backups verwenden Version 5; Versionen 1–4 bleiben lesbar. Test: `node tests/media.test.cjs`.
 
 Version 8.5: Der Bereich Variationen hat Filter für Alle, Global und Übungsspezifisch. „Kopieren“ öffnet einen unabhängigen Entwurf mit neuem Namen; erst Speichern legt die Kopie mit eigenen Optionskennungen an. Die Gültigkeit ist jederzeit änderbar. Übungsspezifische Kategorien werden der gewählten Übung zugeordnet. Test: `node tests/variations.test.cjs`.
+
+Version 8.6: Trainings, Übungen und Variationen können ausschließlich in ihrem Bearbeitungsfenster gelöscht werden. Auf den Übersichtskarten entfällt der Löschbutton. Noch nicht gespeicherte Entwürfe werden über Abbrechen verworfen. Bestätigung, Schutz verwendeter Übungen/Kategorien und Wiederherstellung bleiben bestehen.
