@@ -12,3 +12,5 @@
 .media-page img,.media-page video{width:100%;height:100%;object-fit:contain;display:block;background:#090d14}.no-preview{color:#8392aa;font-size:12px}
 .media-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border-top:1px solid #29364b}.media-controls button{font-size:11px;min-height:36px;padding:6px 11px;border-color:transparent;background:transparent;color:#91a4c0}.media-controls [aria-pressed=true]{background:#233e65;color:#d9e8ff}.media-controls span{font-size:9px;color:#768aa8}
 .exercise-block .exercise-gallery{margin:14px 0 0}.exercise-block .media-page{height:170px}#fields>.exercise-gallery{margin-top:16px}
+
+.media-page{position:relative;overflow:hidden}.media-page img,.media-page video{position:absolute;inset:0;min-height:0;min-width:0}
