@@ -6,6 +6,11 @@ const KraftlogModel={
     if(!Array.isArray(x.trash))x.trash=[];
     return x;
   },
+  filterCategories(categories,scope){return categories.filter(c=>scope==='all'||(c.scope==='exercise'?'exercise':'global')===scope);},
+  copyCategory(category){
+    const copy=structuredClone(category);delete copy.id;copy.name+=' (Kopie)';
+    copy.options=copy.options.map(o=>{const option={...o};delete option.id;return option});return copy;
+  },
   parseParts(value){
     const s=String(value??'').replace(/\s/g,'');
     if(!/^\d+(\+\d+)*$/.test(s))throw Error('Bitte eine Zahl oder Teilstücke wie 5+2 eingeben.');

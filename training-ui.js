@@ -1,6 +1,6 @@
 const weightModes=[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']];
 function measureFor(e){return e.measure||find('exercises',e.exerciseId)?.measure||'reps'}
-function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return data.variationCategories.filter(c=>ids.includes(c.id))}
+function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return data.variationCategories.filter(c=>ids.includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===e.exerciseId))}
 function weightModeFor(e,s){return s?.weightMode??e.weightMode??'none'}
 function targetAttrs(i,j){return `data-block="${i}"${j===null?'':` data-set="${j}"`}`}
 function variationMarkup(e,i,j=null){

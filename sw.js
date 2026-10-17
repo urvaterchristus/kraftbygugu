@@ -1,4 +1,4 @@
-const CACHE='kraftlog-v8.4';
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./style.css?v=8.4','./app.js?v=8.4','./variation-core.js?v=8.4','./dashboard.js?v=8.4','./media-ui.js?v=8.4','./training-ui.js?v=8.4','./backup-ui.js?v=8.4','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-192.png','./icon-512.png'])));self.skipWaiting()});
+const CACHE='kraftlog-v8.5';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./style.css?v=8.5','./app.js?v=8.5','./variation-core.js?v=8.5','./dashboard.js?v=8.5','./media-ui.js?v=8.5','./training-ui.js?v=8.5','./backup-ui.js?v=8.5','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-192.png','./icon-512.png'])));self.skipWaiting()});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('kraftlog-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{if(e.request.method==='GET'&&new URL(e.request.url).origin===self.location.origin)e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=>r||(e.request.mode==='navigate'?caches.match('./index.html'):Response.error()))))});
