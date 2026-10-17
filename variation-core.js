@@ -1,8 +1,9 @@
 /* Kraftlog: Datenmodell für flexible Trainingsvariationen */
 const KraftlogModel={
   normalize(d){
-    const x={exercises:[],equipment:[],routines:[],workouts:[],variationCategories:[],...d};
+    const x={exercises:[],equipment:[],routines:[],workouts:[],variationCategories:[],trash:[],...d};
     for(const e of x.exercises){if(!e.measure)e.measure='reps';if(!Array.isArray(e.variationCategoryIds))e.variationCategoryIds=[];}
+    if(!Array.isArray(x.trash))x.trash=[];
     return x;
   },
   parseParts(value){

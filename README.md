@@ -86,3 +86,5 @@ Dateisicherung bleibt über „Dateien sichern“ erreichbar. Import und alterna
 Prüfen: `node tests/dashboard.test.cjs`, `node tests/training.test.cjs`, `node tests/backup.test.cjs`.
 
 EMOM unterstützt seit Version 8.1 beliebig viele Übungen (mindestens eine); Pausen bleiben möglich.
+
+Version 8.2: In Training und Routine öffnet ＋ bei leerer Auswahl direkt das Anlegen einer Übung. Zusätzlich gibt es die Auswahl „Neue Übung anlegen“. Der Entwurf bleibt auch beim Abbrechen erhalten. Löschen verwendet eine app-eigene Bestätigung; über ⋯ kann der zuletzt gelöschte Eintrag wiederhergestellt werden. Test: `node tests/editor.test.cjs`.
