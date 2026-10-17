@@ -50,3 +50,6 @@ input::-webkit-date-and-time-value{min-width:0;text-align:left}
 .file-safety{display:flex;align-items:center;gap:20px;justify-content:space-between;background:#eaf0e4;border:1px solid #d6e1cb;border-radius:14px;padding:16px 18px;margin:0 0 22px}
 .file-safety h2{font-size:15px;margin:0 0 6px}.file-safety p{font-size:12px;line-height:1.5;color:#5c705b;margin:5px 0}.file-safety button{flex-shrink:0}.file-safety #fileStatus{font-size:11px}
 @media(max-width:650px){.file-safety{flex-direction:column;align-items:stretch;gap:9px;padding:14px}.file-safety button{min-height:46px}}
+
+[hidden]{display:none!important}
+html:has(dialog[open]),body:has(dialog[open]){overflow:hidden}
