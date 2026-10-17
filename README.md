@@ -47,3 +47,16 @@ Bei Änderungen an den Offline-Dateien den Cache-Namen in `sw.js` erhöhen (etwa
 ## Prüfung des ersten Stands
 
 JavaScript-Syntax geprüft. Im Desktop-Browser wurden Gerät und Übung angelegt, eine Routine mit drei Sätzen gespeichert, ein Training daraus erstellt und nach Neuladen wieder aufgerufen. Ein Test auf einem echten iPhone steht noch aus.
+
+
+## Update: kompakte Sets und Variationsbuttons
+
+- Unter „Variationen für alle Sets“ steht immer zuerst die globale Auswahl **Ohne / Gewichtsweste / Gewichtsgürtel**. Bei Weste oder Gürtel ist die kg-Angabe pro Set erforderlich; ohne Zusatzgerät bleibt kg optional (z. B. für vorhandene Hantelgewichte).
+- Zugewiesene Variationskategorien zeigen ihre Optionen als Buttons. „Keine Auswahl“ oder erneutes Antippen der aktiven Option hebt die Auswahl auf.
+- Die Vorgabe gilt für alle Sets ohne eigene Abweichung. „Fertig · Einklappen“ lässt nur die kompakte Tabelle **Set | Kg | WDH | VAR** stehen. Zeitübungen zeigen **SEK**.
+- **VAR** öffnet die Einstellungen für genau dieses Set. Ein Punkt kennzeichnet eigene Abweichungen. „Vorgabe der Übung übernehmen“ entfernt diese; die eingegebenen kg und Wiederholungen bleiben erhalten.
+- Teilwiederholungen wie `5+2`, Sekundenübungen, Routinen und der lautlose EMOM-Timer bleiben verfügbar. Die Tonfunktion ist vollständig entfernt.
+- Backups werden mit Version 3 exportiert. Bestehende Backups der Versionen 1 und 2 werden weiterhin akzeptiert.
+- Vorhandene Daten in IndexedDB bleiben erhalten. Der Offline-Cache wurde aktualisiert; bei einer alten Ansicht die App mit Internetverbindung schließen und neu öffnen.
+
+Regressionstests ohne zusätzliche Abhängigkeiten: `node tests/training.test.cjs`.
