@@ -71,3 +71,16 @@ Die mobile Ansicht ist für 393 × 852 CSS-Pixel (iPhone 15 Pro bei Standarddars
 Die App kann weder den gewählten Speicherort noch das tatsächliche Ablegen einer geteilten Datei prüfen. Deshalb bestätigt sie nur die Übergabe oder den gestarteten Download. Der Browser bleibt die Arbeitskopie; nach Änderungen muss die Sicherungsdatei erneut gespeichert werden. Eine vorhandene Sicherung bleibt unabhängig von gelöschten Browserdaten erhalten. Über „Sicherung öffnen“ lässt sie sich wieder importieren. Es gibt keine automatische Ordnersynchronisation und keinen automatischen Dateizugriff im Hintergrund auf iOS.
 
 Dateisicherungstests: `node tests/backup.test.cjs`.
+
+
+## GuGu · Version 8
+
+Schwarze Oberfläche mit blauen Trainingstagen im Kalender des aktuellen Monats. Die Kennzahlen zählen die Einträge und Trainingsminuten dieses Monats. Mehrere Trainings am gleichen Tag zählen als mehrere Trainings, erzeugen aber nur einen Kalenderkreis.
+
+Der Rhythmus-Smiley erscheint erst nach fünf vollständig vergangenen Monatstagen (ab Tag 6). Mit `vergangene Tage = heutiger Tag - 1` gilt: glücklich bei Trainings >= vergangene Tage / 1,5, neutral bei >= vergangene Tage / 2, sonst traurig. Die angegebenen Formeln sind maßgeblich; die Monatswerte enthalten alle auf diesen Monat datierten Trainingseinträge. Der Kalender aktualisiert sich bei Rückkehr zur App und während sie geöffnet ist.
+
+Trainingskarten zeigen Datum/Uhrzeit, Namen, Ort, Dauer, Methode und alle Übungen mit WDH-Summe einschließlich Teilwiederholungen. Zeitübungen zeigen die Sekundensumme. Pausen können nach der ersten Übung am Ende hinzugefügt und mit einer Dauer in Minuten gespeichert werden. Hinzufügen von Übungen und Pausen ist immer unter der aktuellen Folge möglich, auch in Routinen. Pausen zählen bei EMOM nicht als zusätzliche Übung.
+
+Dateisicherung bleibt über „Dateien sichern“ erreichbar. Import und alternativer Download befinden sich oben im Menü „⋯“. Backups verwenden Version 4 für Pauseneinträge; Versionen 1–3 bleiben lesbar. Die bisherigen lokalen Datenbanknamen und vorhandenen Trainings bleiben unverändert.
+
+Prüfen: `node tests/dashboard.test.cjs`, `node tests/training.test.cjs`, `node tests/backup.test.cjs`.

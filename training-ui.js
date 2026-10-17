@@ -1,5 +1,5 @@
 const weightModes=[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']];
-function measureFor(e){return find('exercises',e.exerciseId)?.measure||'reps'}
+function measureFor(e){return e.measure||find('exercises',e.exerciseId)?.measure||'reps'}
 function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return data.variationCategories.filter(c=>ids.includes(c.id))}
 function weightModeFor(e,s){return s?.weightMode??e.weightMode??'none'}
 function targetAttrs(i,j){return `data-block="${i}"${j===null?'':` data-set="${j}"`}`}
@@ -24,7 +24,9 @@ function rememberBlockUI(){return [...document.querySelectorAll('#blocks details
 function renderBlocks(openPanels=rememberBlockUI()){
  const focused=document.activeElement,focusKey=focused?.dataset?.focus,emom=$('#method')?.value==='emom';
  if($('#emomSettings'))$('#emomSettings').hidden=!emom;
+ if($('#appendPause'))$('#appendPause').hidden=!blocks.some(e=>e.type!=='pause');
  $('#blocks').innerHTML=blocks.map((e,i)=>{
+  if(e.type==='pause')return `<div class="pause-block"><div class="mini-head"><h3>Pause</h3><div><button type="button" data-op="up" data-block="${i}" aria-label="Pause nach oben verschieben">↑</button><button type="button" data-op="remove" data-block="${i}" aria-label="Pause entfernen">✕</button></div></div><label for="pause-${i}">Dauer (Minuten)</label><input class="pause-input" id="pause-${i}" type="number" inputmode="decimal" min="0.1" max="1440" step="any" required value="${esc(e.minutes)}" data-pause="${i}"></div>`;
   const seconds=measureFor(e)==='seconds',defaults=`defaults-${i}`;
   return `<div class="exercise-block"><div class="mini-head"><h3>${esc(e.name||name(e.exerciseId))}</h3><div><button type="button" data-op="up" data-block="${i}" aria-label="Übung nach oben verschieben">↑</button><button type="button" data-op="remove" data-block="${i}" aria-label="Übung entfernen">✕</button></div></div>
    <details class="variation-defaults" data-panel="${defaults}" ${openPanels.includes(defaults)?'open':''}><summary>Variationen für alle Sets <span>${esc(variationSummary(e))}</span></summary>${variationMarkup(e,i)}<button type="button" data-op="collapse" data-block="${i}">Fertig · Einklappen</button></details>
@@ -38,6 +40,10 @@ function renderBlocks(openPanels=rememberBlockUI()){
  if(focusKey){const next=[...document.querySelectorAll('[data-focus]')].find(el=>el.dataset.focus===focusKey);next?.focus({preventScroll:true})}
 }
 function readBlocks(validate=false){
+ document.querySelectorAll('#blocks input[data-pause]').forEach(el=>{
+  const n=Number(el.value);if(validate&&(!Number.isFinite(n)||n<=0||n>1440))throw Error('Bitte eine gültige Pausendauer eingeben.');
+  blocks[Number(el.dataset.pause)].minutes=el.value===''?'':n;
+ });
  document.querySelectorAll('#blocks input[data-key]').forEach(el=>{
   const e=blocks[+el.dataset.block],s=e.sets[+el.dataset.set];
   if(el.dataset.key==='weight'){

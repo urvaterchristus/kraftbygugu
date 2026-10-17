@@ -37,3 +37,9 @@ old.workouts[0].entries[0].weightMode='vest';old.workouts[0].entries[0].sets[0].
 old.workouts[0].entries[0].sets[0].weightMode='invalid';assert.equal(run('validateBackup(backup)'),false);
 assert.doesNotMatch(fs.readFileSync(root+'training-ui.js','utf8'),/AudioContext|Oscillator|timerSound|beep|startEmom|timerClock|setInterval/);
 console.log('PASS: Set overrides, explicit none, reset/inheritance, weights, parts, seconds, v1/v3 backups and audio removal.');
+
+old.workouts[0].entries[0].sets[0].weightMode='none';old.workouts[0].entries.push({type:'pause',minutes:2.5});assert.equal(run('validateBackup(backup)'),true);
+old.workouts[0].entries[1].minutes=-1;assert.equal(run('validateBackup(backup)'),false);
+inputs=[];ctx.blocks.push({type:'pause',minutes:2});run('renderBlocks([])');assert.match(elements.get('#blocks').innerHTML,/data-pause="1"/);
+ctx.event={target:{closest:()=>({dataset:{op:'up',block:'1'}})}};run('handleBlockClick(event)');assert.equal(ctx.blocks[0].type,'pause');assert.equal(ctx.blocks[1].exerciseId,'pull');
+console.log('PASS: pause validation, rendering and reordering without changing exercise sets.');
