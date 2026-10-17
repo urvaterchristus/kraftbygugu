@@ -4,7 +4,7 @@ function createBackupFile(){
  const now=new Date();
  const local=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString();
  const filename='kraftlog-sicherung-'+local.slice(0,19).replace(/:/g,'-')+'.json';
- return new File([JSON.stringify({format:'kraftlog',version:4,exportedAt:now.toISOString(),data})],filename,{type:'application/json'});
+ return new File([JSON.stringify({format:'kraftlog',version:5,exportedAt:now.toISOString(),data})],filename,{type:'application/json'});
 }
 function downloadBackup(file=createBackupFile()){
  const url=URL.createObjectURL(file),a=document.createElement('a');
