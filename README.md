@@ -94,3 +94,5 @@ Version 8.3: Übungen haben ein separates Vorschaubild und Video (je maximal 30 
 Version 8.5: Der Bereich Variationen hat Filter für Alle, Global und Übungsspezifisch. „Kopieren“ öffnet einen unabhängigen Entwurf mit neuem Namen; erst Speichern legt die Kopie mit eigenen Optionskennungen an. Die Gültigkeit ist jederzeit änderbar. Übungsspezifische Kategorien werden der gewählten Übung zugeordnet. Test: `node tests/variations.test.cjs`.
 
 Version 8.6: Trainings, Übungen und Variationen können ausschließlich in ihrem Bearbeitungsfenster gelöscht werden. Auf den Übersichtskarten entfällt der Löschbutton. Noch nicht gespeicherte Entwürfe werden über Abbrechen verworfen. Bestätigung, Schutz verwendeter Übungen/Kategorien und Wiederherstellung bleiben bestehen.
+
+Version 8.7: Routinen speichern Normal/EMOM sowie die EMOM-Minuten. Beim Start oder Übernehmen einer Routine werden Methode und Minuten in das neue Training kopiert. Bestehende Routinen ohne Methodenangabe gelten als Normal.
