@@ -84,3 +84,5 @@ Trainingskarten zeigen Datum/Uhrzeit, Namen, Ort, Dauer, Methode und alle Übung
 Dateisicherung bleibt über „Dateien sichern“ erreichbar. Import und alternativer Download befinden sich oben im Menü „⋯“. Backups verwenden Version 4 für Pauseneinträge; Versionen 1–3 bleiben lesbar. Die bisherigen lokalen Datenbanknamen und vorhandenen Trainings bleiben unverändert.
 
 Prüfen: `node tests/dashboard.test.cjs`, `node tests/training.test.cjs`, `node tests/backup.test.cjs`.
+
+EMOM unterstützt seit Version 8.1 beliebig viele Übungen (mindestens eine); Pausen bleiben möglich.

@@ -21,7 +21,7 @@ const KraftlogModel={
   },
   makeEmom(minutes,items){
     if(!Number.isInteger(minutes)||minutes<1||minutes>240)throw Error('EMOM Dauer muss zwischen 1 und 240 Minuten liegen.');
-    if(!Array.isArray(items)||items.length<1||items.length>2)throw Error('EMOM benötigt eine oder zwei Übungen.');
+    if(!Array.isArray(items)||items.length<1)throw Error('EMOM benötigt mindestens eine Übung.');
     return {method:'emom',minutes,items:structuredClone(items),rounds:Array.from({length:minutes},(_,i)=>({minute:i+1,results:items.map(()=>null)}))};
   }
 };

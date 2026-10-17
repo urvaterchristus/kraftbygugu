@@ -43,3 +43,7 @@ old.workouts[0].entries[1].minutes=-1;assert.equal(run('validateBackup(backup)')
 inputs=[];ctx.blocks.push({type:'pause',minutes:2});run('renderBlocks([])');assert.match(elements.get('#blocks').innerHTML,/data-pause="1"/);
 ctx.event={target:{closest:()=>({dataset:{op:'up',block:'1'}})}};run('handleBlockClick(event)');assert.equal(ctx.blocks[0].type,'pause');assert.equal(ctx.blocks[1].exerciseId,'pull');
 console.log('PASS: pause validation, rendering and reordering without changing exercise sets.');
+
+assert.equal(run("KraftlogModel.makeEmom(10,Array.from({length:30},(_,i)=>({exerciseId:'e'+i}))).items.length"),30);
+assert.throws(()=>run('KraftlogModel.makeEmom(10,[])'));
+console.log('PASS: EMOM accepts 30 exercises and still rejects an empty workout.');
