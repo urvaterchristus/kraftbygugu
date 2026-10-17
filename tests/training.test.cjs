@@ -35,5 +35,5 @@ const app=fs.readFileSync(root+'app.js','utf8'),a=app.indexOf('function validate
 const old=JSON.parse(JSON.stringify({exercises:[{id:'pull',name:'Klimmzüge'}],routines:[],workouts:[{id:'w',name:'Training',date:'2026-10-17',time:'12:00',duration:60,entries:[{exerciseId:'pull',sets:[{reps:10,weight:20}]}]}]}));ctx.backup=old;assert.equal(run('validateBackup(backup)'),true);
 old.workouts[0].entries[0].weightMode='vest';old.workouts[0].entries[0].sets[0].variations={device:{optionId:''}};assert.equal(run('validateBackup(backup)'),true);
 old.workouts[0].entries[0].sets[0].weightMode='invalid';assert.equal(run('validateBackup(backup)'),false);
-assert.doesNotMatch(fs.readFileSync(root+'training-ui.js','utf8'),/AudioContext|Oscillator|timerSound|beep/);
+assert.doesNotMatch(fs.readFileSync(root+'training-ui.js','utf8'),/AudioContext|Oscillator|timerSound|beep|startEmom|timerClock|setInterval/);
 console.log('PASS: Set overrides, explicit none, reset/inheritance, weights, parts, seconds, v1/v3 backups and audio removal.');

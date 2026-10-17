@@ -55,8 +55,19 @@ JavaScript-Syntax geprüft. Im Desktop-Browser wurden Gerät und Übung angelegt
 - Zugewiesene Variationskategorien zeigen ihre Optionen als Buttons. „Keine Auswahl“ oder erneutes Antippen der aktiven Option hebt die Auswahl auf.
 - Die Vorgabe gilt für alle Sets ohne eigene Abweichung. „Fertig · Einklappen“ lässt nur die kompakte Tabelle **Set | Kg | WDH | VAR** stehen. Zeitübungen zeigen **SEK**.
 - **VAR** öffnet die Einstellungen für genau dieses Set. Ein Punkt kennzeichnet eigene Abweichungen. „Vorgabe der Übung übernehmen“ entfernt diese; die eingegebenen kg und Wiederholungen bleiben erhalten.
-- Teilwiederholungen wie `5+2`, Sekundenübungen, Routinen und der lautlose EMOM-Timer bleiben verfügbar. Die Tonfunktion ist vollständig entfernt.
+- Teilwiederholungen wie `5+2`, Sekundenübungen, Routinen und die nachträgliche EMOM-Erfassung bleiben verfügbar. Ton und Timer sind vollständig entfernt.
 - Backups werden mit Version 3 exportiert. Bestehende Backups der Versionen 1 und 2 werden weiterhin akzeptiert.
 - Vorhandene Daten in IndexedDB bleiben erhalten. Der Offline-Cache wurde aktualisiert; bei einer alten Ansicht die App mit Internetverbindung schließen und neu öffnen.
 
 Regressionstests ohne zusätzliche Abhängigkeiten: `node tests/training.test.cjs`.
+
+
+## iPhone 15 Pro und echte Sicherungsdateien
+
+Die mobile Ansicht ist für 393 × 852 CSS-Pixel (iPhone 15 Pro bei Standarddarstellung) ausgelegt. Datum und Uhrzeit stehen auf schmalen Displays untereinander. Die Formulare berücksichtigen Safari-Eingabefelder, Safe Areas, Touchgrößen und Bildschirmhöhe. Die EMOM-Methode erfasst weiterhin Dauer und Sets, enthält aber keinen Timer und keine Start-/Pause-Bedienung mehr.
+
+**In Dateien sichern** erzeugt eine vollständige JSON-Datei mit allen Trainings, Routinen, Übungen, Variationen und Medien. Wenn das Teilen von Dateien unterstützt wird, öffnet der Button die systemeigene Teilen-Funktion. Auf dem iPhone dort „In Dateien sichern“ und den gewünschten Ordner unter „Auf meinem iPhone“ wählen. Alternativ kann die Datei heruntergeladen und in der Dateien-App verschoben werden.
+
+Die App kann weder den gewählten Speicherort noch das tatsächliche Ablegen einer geteilten Datei prüfen. Deshalb bestätigt sie nur die Übergabe oder den gestarteten Download. Der Browser bleibt die Arbeitskopie; nach Änderungen muss die Sicherungsdatei erneut gespeichert werden. Eine vorhandene Sicherung bleibt unabhängig von gelöschten Browserdaten erhalten. Über „Sicherung öffnen“ lässt sie sich wieder importieren. Es gibt keine automatische Ordnersynchronisation und keinen automatischen Dateizugriff im Hintergrund auf iOS.
+
+Dateisicherungstests: `node tests/backup.test.cjs`.

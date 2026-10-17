@@ -1,4 +1,3 @@
-let emomTimer=null;
 const weightModes=[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']];
 function measureFor(e){return find('exercises',e.exerciseId)?.measure||'reps'}
 function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return data.variationCategories.filter(c=>ids.includes(c.id))}
@@ -37,7 +36,6 @@ function renderBlocks(openPanels=rememberBlockUI()){
    }).join('')}</div><button type="button" data-op="add" data-block="${i}">＋ Set hinzufügen</button></div>`;
  }).join('');
  if(focusKey){const next=[...document.querySelectorAll('[data-focus]')].find(el=>el.dataset.focus===focusKey);next?.focus({preventScroll:true})}
- renderTimer(emom);
 }
 function readBlocks(validate=false){
  document.querySelectorAll('#blocks input[data-key]').forEach(el=>{
@@ -86,30 +84,3 @@ function handleBlockClick(event){
  if(op==='up'&&i>0)[blocks[i-1],blocks[i]]=[blocks[i],blocks[i-1]];
  renderBlocks(['remove','drop','up'].includes(op)?[]:panels);
 }
-function renderTimer(emom){
- const area=$('#timerArea');if(!area)return;
- if(!emom){resetEmom();area.innerHTML='';return}
- if(!$('#timerClock'))area.innerHTML='<div class="timer"><strong id="timerClock">Bereit</strong><p id="timerMinute">EMOM Timer</p><div class="actions"><button type="button" id="timerStart">Start</button><button type="button" id="timerPause">Pause</button><button type="button" id="timerReset">Zurücksetzen</button></div><p class="hint">Für nachträgliche Einträge muss der Timer nicht gestartet werden.</p></div>';
- $('#timerStart').onclick=startEmom;$('#timerPause').onclick=pauseEmom;$('#timerReset').onclick=resetEmom;
- timerDisplay();
-}
-function timerDisplay(){
- if(!emomTimer)return;
- const elapsed=emomTimer.elapsed+(emomTimer.running?(performance.now()-emomTimer.started)/1000:0),total=emomTimer.minutes*60;
- const t=$('#timerClock'),m=$('#timerMinute');if(!t||!m)return;
- if(elapsed<3){t.textContent=String(Math.ceil(3-elapsed));m.textContent='Start in';return}
- const passed=Math.max(0,elapsed-3),minute=Math.min(emomTimer.minutes,Math.floor(passed/60)+1),remaining=Math.max(0,60-Math.floor(passed%60));
- t.textContent=passed>=total?'Fertig':String(remaining).padStart(2,'0')+' s';m.textContent='Minute '+minute+' von '+emomTimer.minutes;
- if(passed>=total){if(emomTimer.running)pauseEmom();m.textContent='Training abgeschlossen'}
-}
-function startEmom(){
- if(emomTimer?.running)return;
- const minutes=Number($('#emomMinutes')?.value);
- if(!Number.isInteger(minutes)||minutes<1||minutes>240){toast('Ungültige EMOM Dauer');return}
- if(!emomTimer)emomTimer={minutes,elapsed:0};
- emomTimer.minutes=minutes;emomTimer.started=performance.now();emomTimer.running=true;
- emomTimer.interval=setInterval(timerDisplay,150);timerDisplay();
-}
-function pauseEmom(){if(!emomTimer?.running)return;emomTimer.elapsed+=(performance.now()-emomTimer.started)/1000;emomTimer.running=false;clearInterval(emomTimer.interval);timerDisplay()}
-function resetEmom(){pauseEmom();emomTimer=null;if($('#timerClock'))$('#timerClock').textContent='Bereit';if($('#timerMinute'))$('#timerMinute').textContent='EMOM Timer'}
-$('#editor').addEventListener('close',resetEmom);

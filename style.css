@@ -21,5 +21,32 @@
 .set-variation-panel .hint{margin-bottom:8px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 summary:focus-visible{outline:3px solid #a3bf62;outline-offset:3px}
-.timer{background:#eaf0e4;border-radius:12px;padding:16px;margin-top:14px}.timer>strong{font-size:26px}.timer .actions{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:400px){.exercise-block{padding:10px}.set-line{grid-template-columns:23px minmax(48px,1fr) minmax(57px,1fr) 49px 26px;gap:5px}.choice-buttons{gap:5px}.choice-buttons button{padding:9px}.set-variation-panel[open]{padding:10px}.mini-head h3{max-width:72%}}
+
+/* iPhone-first forms, including Safari date/time intrinsic sizing. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,select,textarea{display:block;min-inline-size:0;max-inline-size:100%;box-sizing:border-box}
+input[type=date],input[type=time]{width:100%;min-width:0;max-width:100%;min-height:46px;overflow:hidden;appearance:none;-webkit-appearance:none}
+input::-webkit-date-and-time-value{min-width:0;text-align:left}
+.row{min-width:0}.row>div{min-width:0;width:0}.row>select{flex:1;width:0;min-width:0}.row>button{flex-shrink:0}
+.date-time-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.date-time-row>div{width:auto;min-width:0}
+@media(max-width:650px){
+ header{padding:calc(14px + env(safe-area-inset-top)) 18px 14px}
+ main{padding:22px max(16px,env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+ h1{font-size:38px;letter-spacing:-1.5px}.intro{padding-bottom:24px}.stats{margin-bottom:22px}
+ button{min-height:44px}nav button{padding-inline:10px}.mini-head button{min-width:44px;padding:8px}
+ .choice-buttons button,.set-line button,.set-line input{min-height:44px}
+ .card{padding:18px}.card .actions button{min-height:44px}
+ dialog{position:fixed;inset:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;border-radius:0;padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left));overflow-y:auto;overscroll-behavior:contain;scroll-padding-block:80px}
+ .dialog-head{position:sticky;top:0;z-index:2;background:#fff;padding:10px 0;border-bottom:1px solid #e0e6da;margin-bottom:10px}
+ .dialog-head h2{font-size:21px;margin:8px 0}.dialog-head button{min-width:44px}
+ .dialog-actions{position:sticky;bottom:0;background:#fff;padding:12px 0 calc(12px + env(safe-area-inset-bottom));margin-top:18px;border-top:1px solid #e0e6da;z-index:2}
+ .dialog-actions button{flex:1;min-height:48px}.exercise-block{padding:12px}.mini-head{gap:6px}.mini-head h3{overflow-wrap:anywhere;flex:1}.mini-head>div{display:flex;flex-shrink:0}
+ input,select,textarea{font-size:16px}footer{padding-bottom:env(safe-area-inset-bottom)}
+}
+@media(max-width:480px){.date-time-row{grid-template-columns:minmax(0,1fr);gap:0}}
+
+.file-safety{display:flex;align-items:center;gap:20px;justify-content:space-between;background:#eaf0e4;border:1px solid #d6e1cb;border-radius:14px;padding:16px 18px;margin:0 0 22px}
+.file-safety h2{font-size:15px;margin:0 0 6px}.file-safety p{font-size:12px;line-height:1.5;color:#5c705b;margin:5px 0}.file-safety button{flex-shrink:0}.file-safety #fileStatus{font-size:11px}
+@media(max-width:650px){.file-safety{flex-direction:column;align-items:stretch;gap:9px;padding:14px}.file-safety button{min-height:46px}}
