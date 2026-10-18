@@ -40,19 +40,19 @@ function viewerVariationChanges(entry,set){
  return {changed:modeChanged||categories.size>0,modeChanged,categories};
 }
 function viewerSelection(exercise,entry,set){
- const selected=KraftlogModel.resolveVariations(entry,set||{}),mode=set?.weightMode??entry.weightMode??'none',changes=viewerVariationChanges(entry,set),baseMode=entry.weightMode??'none';
- const chip=(label,on,previous=false)=>`<button type="button"${previous?' class="viewer-previous" title="Voreinstellung – in diesem Set geändert"':''} disabled aria-pressed="${on}">${esc(label)}</button>`;
- const ids=new Set([...(exercise.variationCategoryIds||[]),...Object.keys(selected)]);
- const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>ids.has(c.id)));
- return '<div class="viewer-selection"><h4>Zusatzgewicht</h4><div class="choice-buttons">'+[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']].map(([id,label])=>chip(label,mode===id,changes.modeChanged&&baseMode===id)).join('')+'</div>'+categories.map(c=>{
-  const value=selected[c.id]||{},option=c.options.find(o=>o.id===value.optionId),base=entry.variations?.[c.id]||{},changed=changes.categories.has(c.id),previousId=base.optionId||'';
-  return `<h4>${esc(c.name)}</h4><div class="choice-buttons">${chip('Keine Auswahl',!value.optionId,changed&&!previousId&&!!value.optionId)}${c.options.map(o=>chip(o.name,o.id===value.optionId,changed&&o.id===previousId&&o.id!==value.optionId)).join('')}${value.optionId&&!option?chip('Nicht mehr vorhandene Option',true):''}</div>${option?.extra&&value.value!==undefined&&value.value!==''?`<p>${esc(value.value)} ${esc(option.extra.unit)}${changed&&previousId===value.optionId&&String(base.value??'')!==String(value.value??'')?` <span class="viewer-previous-value">Vorgabe: ${esc(base.value??'–')} ${esc(option.extra.unit)}</span>`:''}</p>`:''}`;
+ const selected=KraftlogModel.resolveVariations(entry,set||{}),mode=set?.weightMode??entry.weightMode??'none';
+ const chip=label=>`<button type="button" disabled aria-pressed="true">${esc(label)}</button>`;
+ const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>Object.hasOwn(selected,c.id)));
+ return '<div class="viewer-selection"><h4>Zusatzgewicht</h4><div class="choice-buttons">'+chip(({none:'Ohne',vest:'Gewichtsweste',belt:'Gewichtsgürtel'})[mode]||'Ohne')+'</div>'+categories.map(c=>{
+  const value=selected[c.id]||{},option=c.options.find(o=>o.id===value.optionId);
+  if(!value.optionId&&!entry.variations?.[c.id]?.optionId)return '';
+  return `<h4>${esc(c.name)}</h4><div class="choice-buttons">${chip(value.optionId?(option?.name||'Nicht mehr vorhandene Option'):'Keine Auswahl')}</div>${option?.extra&&value.value!==undefined&&value.value!==''?`<p>${esc(value.value)} ${esc(option.extra.unit)}</p>`:''}`;
  }).join('')+'</div>';
 }
 function viewerVariations(exercise,entry){
  if(entry){
-  const seconds=(entry.measure||exercise.measure)==='seconds';
-  return '<section class="viewer-variations"><h3>Einstellungen dieser Übung</h3>'+viewerSelection(exercise,entry)+'<h3>Sets</h3><div class="viewer-set-table"><div class="viewer-set-head"><span>Set</span><span>Kg</span><span>'+ (seconds?'SEK':'WDH')+'</span></div>'+(entry.sets||[]).map((set,i)=>{const changed=viewerVariationChanges(entry,set).changed;return `<div class="viewer-set-row"><span>${i+1}</span><span>${esc(set.weight??'–')}</span><span>${esc(seconds?(set.seconds??set.reps):(set.partsText??set.reps))}</span><details${changed?' class="has-variation-changes"':''}><summary>Variationen · Set ${i+1}${changed?'<span class="variation-change-label">Geändert</span>':''}</summary>${viewerSelection(exercise,entry,set)}</details></div>`;}).join('')+'</div></section>';
+  const seconds=(entry.measure||exercise.measure)==='seconds',unit=entry._viewMethod==='emom'?'Minute':'Set';
+  return '<section class="viewer-variations"><h3>Einstellungen dieser Übung</h3>'+viewerSelection(exercise,entry)+'<h3>Sets</h3><div class="viewer-set-table"><div class="viewer-set-head"><span>'+unit+'</span><span>Kg</span><span>'+ (seconds?'SEK':'WDH')+'</span></div>'+(entry.sets||[]).map((set,i)=>{const changed=viewerVariationChanges(entry,set).changed;return `<div class="viewer-set-row"><span>${i+1}</span><span>${esc(set.weight??'–')}</span><span>${esc(seconds?(set.seconds??set.reps):(set.partsText??set.reps))}</span>${changed?`<details class="has-variation-changes"><summary>Variationen · ${unit} ${i+1}<span class="variation-change-label">Geändert</span></summary>${viewerSelection(exercise,entry,set)}</details>`:''}</div>`;}).join('')+'</div></section>';
  }
  const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>(exercise.variationCategoryIds||[]).includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===exercise.id)));
  return '<section class="viewer-variations"><h3>Variationsoptionen</h3><h4>Zusatzgewicht</h4><div class="viewer-options"><span>Ohne</span><span>Gewichtsweste</span><span>Gewichtsgürtel</span></div>'+categories.map(c=>`<h4>${esc(c.name)}</h4><div class="viewer-options">${c.options.map(o=>`<span>${esc(o.name)}${o.extra?' ('+esc(o.extra.unit)+')':''}</span>`).join('')}</div>`).join('')+'</section>';
@@ -64,7 +64,7 @@ async function viewExercise(id,entry){
  if(media.image)try{const blob=await GuGuMediaStorage.get(media.image);if(generation!==viewerGeneration)return;const url=URL.createObjectURL(blob);activeExerciseViewer.urls.push(url);$('#exerciseViewer [data-view-image]').src=url;}catch(error){if(generation===viewerGeneration)$('#exerciseViewerBody').insertAdjacentHTML('afterbegin',`<p role="alert">${esc(error.message)}</p>`);}
 }
 document.addEventListener('click',event=>{
- const viewerButton=event.target.closest('[data-view-exercise]');if(viewerButton){const context=viewerButton.dataset;let entry;if(context.viewDraft==='true'){readBlocks();entry=blocks[Number(context.viewEntry)];}else if(context.viewRecordId){entry=find(context.viewRecordType,context.viewRecordId)?.entries[Number(context.viewEntry)];}viewExercise(context.viewExercise,entry?.exerciseId===context.viewExercise?structuredClone(entry):null);return;}
+ const viewerButton=event.target.closest('[data-view-exercise]');if(viewerButton){const context=viewerButton.dataset;let entry,method;if(context.viewDraft==='true'){readBlocks();entry=blocks[Number(context.viewEntry)];method=sectionForEntry(entry)?.method;}else if(context.viewRecordId){const record=find(context.viewRecordType,context.viewRecordId);entry=record?.entries[Number(context.viewEntry)];method=record?.sections?.find(s=>s.id===entry?.sectionId)?.method||record?.method;}viewExercise(context.viewExercise,entry?.exerciseId===context.viewExercise?{...structuredClone(entry),_viewMethod:method}:null);return;}
  if(event.target.closest('#closeExerciseViewer')){$('#exerciseViewer').close();return;}
  const button=event.target.closest('[data-media-index]');if(!button)return;
  const track=button.closest('.exercise-gallery').querySelector('.media-track');

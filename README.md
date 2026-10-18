@@ -121,3 +121,10 @@ Beim Vorladen einer Routine bleiben deren Set-Werte erhalten. Änderungen im ers
 - IndexedDB-Version 2 speichert originale Medien unverändert als Blobs im Store `media`. Der Arbeitsdatensatz enthält nur Referenzen und kleine Vorschaubilder. Bestehende Daten werden einmalig umgestellt. Der alte Arbeitsdatensatz wird erst nach erfolgreichem Schreiben aller Medien ersetzt.
 - Sicherungen enthalten weiterhin alle Originalmedien als portable JSON-Datei. Der Export setzt die Datei stückweise zusammen. Bei großen Dateien kann iOS einen zweiten Tipp auf „Sicherung bereit · In Dateien sichern“ benötigen.
 - Startersets ohne Medien enthalten auch keine Vorschaubilder.
+
+## GuGu 11.0: Trainingsabschnitte
+
+- Trainings und Routinen bestehen aus frei kombinierbaren Normal-/EMOM-Abschnitten mit eigenen Übungen. Übungen und Abschnitte können umgeordnet werden.
+- Im EMOM-Abschnitt entspricht jede Set-Runde einer Minute und enthält je ein Set aller dortigen Übungen. Minuten hinzufügen, entfernen und ändern betrifft nur diesen Abschnitt. Normal-Abschnitte behalten unabhängige Set-Anzahlen.
+- Routinen übernehmen Abschnitte und gespeicherte Set-Werte. Bestehende Einträge werden beim Öffnen als ein Abschnitt behandelt; vorhandene Set-Werte bleiben erhalten.
+- Training ansehen zeigt nur verwendete Variationen. Nur abweichende Sets haben eine blaue aufklappbare Variationsanzeige.
