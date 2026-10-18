@@ -46,7 +46,7 @@ function updateExercisePicker(){const picker=$('#exercisePick');if(!picker)retur
 function enhanceEditor(){
  $('#editorForm .dialog-actions').hidden=false;
  if(editing.type==='exercises'){
-  $('#exerciseCategories').dataset.initialized='true';$('#exerciseCategories').dataset.knownCategories=JSON.stringify(data.variationCategories.map(c=>c.id));const x=editing.id?find('exercises',editing.id):null,measure=$('#measure');measure.insertAdjacentHTML('beforebegin','<label for="exerciseType">Übungstyp</label><select id="exerciseType"><option value="">Nicht zugeordnet</option>'+GuGuProgress.types.map(t=>`<option ${x?.exerciseType===t?'selected':''}>${esc(t)}</option>`).join('')+'</select>');
+  $('#exerciseCategories').dataset.initialized='true';$('#exerciseCategories').dataset.knownCategories=JSON.stringify(data.variationCategories.map(c=>c.id));const x=editing.id?find('exercises',editing.id):null,measure=$('label[for="measure"]');measure.insertAdjacentHTML('beforebegin','<label for="exerciseType">Übungstyp</label><select id="exerciseType"><option value="">Nicht zugeordnet</option>'+GuGuProgress.types.map(t=>`<option ${x?.exerciseType===t?'selected':''}>${esc(t)}</option>`).join('')+'</select>');
   $('#fields').insertAdjacentHTML('beforeend','<button type="button" id="manageExerciseVariations">Variationen / Kategorien bearbeiten</button>');$('#manageExerciseVariations').onclick=showVariationManager;
  }
  if(editing.type==='variations'){

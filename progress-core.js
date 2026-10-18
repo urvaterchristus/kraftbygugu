@@ -1,5 +1,5 @@
 const GuGuProgress={
- types:['Stützend','Hängend','Liegend','Stehend','Dehnung'],
+ types:['Stützend','Hängend','Liegend','Hockend','Stehend','Dehnung'],
  alphabetical(items){return [...items].sort((a,b)=>a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));},
  signature(entry,set){
   const variations={...entry.variations,...set?.variations};
