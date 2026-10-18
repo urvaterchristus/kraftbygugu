@@ -13,21 +13,44 @@ function suggestHistory(entry,index=null){
 function markEdited(input){const e=blocks[+input.dataset.block],s=e?.sets[+input.dataset.set];if(!s)return;const dirty=manuallyEdited.get(s)||new Set();dirty.add(input.dataset.key);manuallyEdited.set(s,dirty);}
 document.addEventListener('focusin',event=>{
  const el=event.target;if(!el.matches?.('#blocks input[data-key],#blocks input[data-extra],#blocks input[data-pause],#duration,#emomMinutes'))return;
- el.dataset.beforeEdit=el.value;el.value='';
+ el.dataset.beforeEdit=el.value;delete el.dataset.lastSetPrompt;el.value='';
 });
 document.addEventListener('input',event=>{if(event.target.matches?.('#blocks input[data-key]'))markEdited(event.target);});
-document.addEventListener('focusout',event=>{const el=event.target;if(el.dataset?.beforeEdit!==undefined&&el.value==='')el.value=el.dataset.beforeEdit;});
-document.addEventListener('change',event=>{
- const el=event.target;if(!el.matches?.('#blocks input[data-key="partsText"][data-set="0"]')||el.value===''||el.value===el.dataset.beforeEdit)return;
- const i=+el.dataset.block,e=blocks[i];if(!e||measureFor(e)!=='reps'||e.sets.length<2)return;
- let parsed;try{parsed=KraftlogModel.parseParts(el.value)}catch{return}
- readBlocks();const value=el.value;
+document.addEventListener('focusout',event=>{
+ const el=event.target;if(el.dataset?.beforeEdit!==undefined&&el.value==='')el.value=el.dataset.beforeEdit;
+ handleFirstSetValue(el);
+});
+// focusout also covers mobile keyboards and edits that do not emit change.
+document.addEventListener('change',event=>handleFirstSetValue(event.target));
+function handleFirstSetValue(el){
+ if(!el.matches?.('#blocks input[data-key][data-set="0"]')||el.value===''||el.value===el.dataset.beforeEdit)return;
+ const i=+el.dataset.block,e=blocks[i],key=el.dataset.key,value=el.value;
+ if(!e||e.sets.length<2||!['partsText','weight'].includes(key))return;
+ const token=String(el.dataset.beforeEdit)+'>'+value;
+ if(el.dataset.lastSetPrompt===token||pendingSetChange)return;
+ const seconds=measureFor(e)==='seconds';
+ try{
+  if(key==='partsText'&&!seconds)KraftlogModel.parseParts(value);
+  else if(!Number.isFinite(Number(value))||Number(value)<0||Number(value)>10000)return;
+ }catch{return}
+ el.dataset.lastSetPrompt=token;readBlocks();
+ const source=structuredClone(e.sets[0]);
+ const label=key==='weight'?'Gewicht '+value+' kg':seconds?'Sekunden '+value:'WDH '+value;
+ const title=e.name||name(e.exerciseId);
  pendingSetChange=(async()=>{
-  if(await confirmAction('WDH '+value+' für alle '+e.sets.length+' Sets dieser Übung übernehmen?','Alle Sets ändern')){
-   e.sets.forEach((s,j)=>{s.partsText=value;s.parts=[...parsed.parts];s.reps=parsed.total;const dirty=manuallyEdited.get(s)||new Set();dirty.add('partsText');manuallyEdited.set(s,dirty);const field=$(`#blocks input[data-block="${i}"][data-set="${j}"][data-key="partsText"]`);if(field){field.value=value;field.dataset.beforeEdit=value}});
+  if(await confirmAction(label+' für alle '+e.sets.length+' Sets von „'+title+'“ übernehmen?','Alle Sets ändern')){
+   e.sets.forEach((set,j)=>{
+    if(key==='weight')set.weight=source.weight;
+    else if(seconds){set.seconds=source.seconds;set.reps=source.reps;delete set.partsText;delete set.parts;}
+    else{set.partsText=source.partsText;set.parts=structuredClone(source.parts);set.reps=source.reps;}
+    const dirty=manuallyEdited.get(set)||new Set();dirty.add(key);manuallyEdited.set(set,dirty);
+    const field=$(`#blocks input[data-block="${i}"][data-set="${j}"][data-key="${key}"]`);
+    if(field){field.value=value;field.dataset.beforeEdit=value;}
+   });
   }
  })().finally(()=>{pendingSetChange=null});
-});
+ return pendingSetChange;
+}
 function draftSnapshot(kind='editor'){
  if($('#blocks'))readBlocks();return {kind,editing:{...editing},blocks,nodes:[...$('#fields').childNodes],title:$('#dialogTitle').textContent,scroll:$('#editor').scrollTop,submitHidden:$('#editorForm .dialog-actions').hidden};
 }
@@ -57,8 +80,6 @@ function enhanceEditor(){
   $('#exercisePick').closest('.entry-composer').insertAdjacentHTML('afterbegin','<label for="pickerType">Übungstyp filtern</label><select id="pickerType">'+typeOptions()+'</select>');$('#pickerType').onchange=updateExercisePicker;
  }
  if($('#location')){$('#location').setAttribute('list','knownLocations');$('#location').insertAdjacentHTML('afterend','<datalist id="knownLocations">'+[...new Set(data.workouts.map(w=>w.location?.trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de')).map(v=>`<option value="${esc(v)}"></option>`).join('')+'</datalist>');}
- if(editing.type==='workouts'&&!editing.id&&editing.routineId){blocks.forEach(e=>{if(e.type!=='pause')suggestHistory(e)});renderBlocks([],null,false);}
- if($('#routinePick'))$('#routinePick').addEventListener('change',()=>{if(!editing.routineId)return;blocks.forEach(e=>{if(e.type!=='pause')suggestHistory(e)});renderBlocks([],null,false);});
  updateBackButton();
 }
 function showVariationManager(){

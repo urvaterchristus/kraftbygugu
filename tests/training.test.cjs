@@ -47,3 +47,8 @@ console.log('PASS: pause validation, rendering and reordering without changing e
 assert.equal(run("KraftlogModel.makeEmom(10,Array.from({length:30},(_,i)=>({exerciseId:'e'+i}))).items.length"),30);
 assert.throws(()=>run('KraftlogModel.makeEmom(10,[])'));
 console.log('PASS: EMOM accepts 30 exercises and still rejects an empty workout.');
+inputs=[];
+ctx.blocks=[{exerciseId:'pull',measure:'reps',sets:[{reps:9,partsText:'9',weight:2},{reps:12,partsText:'12',weight:3},{reps:20,partsText:'20',weight:7,variations:{device:{optionId:'rings'}}}]}];
+click('add',null);assert.equal(ctx.blocks[0].sets[3].reps,20);assert.equal(ctx.blocks[0].sets[3].weight,7);assert.equal(ctx.blocks[0].sets[3].variations.device.optionId,'rings');assert.notEqual(ctx.blocks[0].sets[3],ctx.blocks[0].sets[2]);ctx.blocks[0].sets[3].variations.device.optionId='bar';assert.equal(ctx.blocks[0].sets[2].variations.device.optionId,'rings');
+ctx.blocks=[{exerciseId:'pull',measure:'seconds',sets:[{seconds:20,reps:20,weight:0}]}];click('add',null);assert.equal(ctx.blocks[0].sets[1].seconds,20);
+console.log('PASS: newly added sets copy the current last set, including kg/seconds and independent variations.');

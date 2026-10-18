@@ -109,3 +109,7 @@ Version 8.8: Änderungen an Variationen, Zusatzgewichten und Sets erhalten Scrol
 - Routinen können über Pfeile umgeordnet werden. Übungen und Variationskategorien werden alphabetisch angezeigt; Optionsreihenfolgen bleiben erhalten.
 - Übungstypen und Filter: Stützend, Hängend, Liegend, Stehend, Dehnung. Orte bieten Vorschläge aus Trainings und erlauben freie Eingabe.
 - „Variationen bearbeiten“ öffnet die Kategorienverwaltung im laufenden Editor. Der Zurück-Pfeil stellt den Entwurf inklusive Dateiauswahl und Scrollposition wieder her.
+
+## GuGu 9.3
+
+Beim Vorladen einer Routine bleiben deren Set-Werte erhalten. Änderungen im ersten Set lassen sich je Übung nach Rückfrage auf die übrigen Sets übertragen (WDH, Sekunden oder kg jeweils getrennt). Die Nachfrage funktioniert auch beim Verlassen des Feldes. Neue Sets kopieren die aktuellen Werte und Einstellungen des letzten Sets.

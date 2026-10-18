@@ -121,7 +121,7 @@ function handleBlockClick(event){
  }
  if(op==='collapse'){const index=panels.indexOf(`defaults-${i}`);if(index>=0)panels.splice(index,1)}
  if(op==='remove')blocks.splice(i,1);
- if(op==='add'){const next=GuGuProgress.numbers(GuGuProgress.previous(data.workouts,e,{},e.sets.length,editing?.id),measureFor(e)==='seconds');e.sets.push(next);}
+ if(op==='add')e.sets.push(structuredClone(e.sets.at(-1)||GuGuProgress.numbers(null,measureFor(e)==='seconds')));
  if(op==='drop')e.sets.splice(j,1);
  if(op==='up'&&i>0)[blocks[i-1],blocks[i]]=[blocks[i],blocks[i-1]];
  if(['variation','weight-mode','reset-variations'].includes(op))suggestHistory(e,j);
