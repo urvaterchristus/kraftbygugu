@@ -3,7 +3,7 @@ function sectionForEntry(entry){return trainingSections.find(s=>s.id===entry.sec
 function refreshSectionComposer(){
  const picker=$('#sectionPick');if(picker)picker.innerHTML=trainingSections.map((s,i)=>`<option value="${esc(s.id)}" ${s.id===activeSectionId?'selected':''}>Abschnitt ${i+1} · ${s.method==='emom'?'EMOM':'Normal'}</option>`).join('');
  document.querySelectorAll('[data-training-section]').forEach(el=>el.classList.toggle('active-section',el.dataset.trainingSection===activeSectionId));
- if($('#appendPause'))$('#appendPause').hidden=!blocks.some(e=>e.type!=='pause')||trainingSections.find(s=>s.id===activeSectionId)?.method==='emom';
+ if($('#appendPause'))$('#appendPause').hidden=!blocks.some(e=>e.type!=='pause');
 }
 function renderSectionBlocks(entries,renderBlock){
  if(!trainingSections.length)return entries.map(renderBlock).join('');

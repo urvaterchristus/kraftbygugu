@@ -55,3 +55,13 @@ console.log('PASS: newly added sets copy the current last set, including kg/seco
 
 const sectionUI=fs.readFileSync(root+'sections-ui.js','utf8');run(sectionUI.slice(0,sectionUI.indexOf("document.addEventListener('click'")));
 ctx.blocks=[{exerciseId:'pull',sectionId:'em',measure:'reps',sets:[{reps:9,weight:1},{reps:20,weight:3}]},{exerciseId:'pull',sectionId:'em',measure:'seconds',sets:[{seconds:10,reps:10,weight:0},{seconds:30,reps:30,weight:0}]},{exerciseId:'pull',sectionId:'normal',sets:[{reps:8,weight:0}]}];run("trainingSections=[{id:'em',method:'emom',rounds:2},{id:'normal',method:'normal',rounds:1}];activeSectionId='em'");click('add',null);assert.equal(ctx.blocks[0].sets.length,3);assert.equal(ctx.blocks[1].sets.length,3);assert.equal(ctx.blocks[2].sets.length,1);assert.equal(ctx.blocks[0].sets[2].reps,20);assert.equal(ctx.blocks[1].sets[2].seconds,30);assert.equal(run('trainingSections[0].rounds'),3);click('drop',1);assert.equal(ctx.blocks[0].sets.length,2);assert.equal(ctx.blocks[1].sets.length,2);assert.equal(ctx.blocks[2].sets.length,1);assert.equal(run('trainingSections[0].rounds'),2);console.log('PASS: EMOM add/remove synchronizes the same minute across that section only and copies current last-set values.');
+
+const pauseButton=node();elements.set('#appendPause',pauseButton);
+run("activeSectionId='em';refreshSectionComposer()");assert.equal(pauseButton.hidden,false);
+run("activeSectionId='normal';refreshSectionComposer()");assert.equal(pauseButton.hidden,false);
+ctx.blocks.push({type:'pause',minutes:2.5,sectionId:'em'});
+run("GuGuSections.resize(blocks,trainingSections[0],4);renderBlocks()");
+assert.equal(ctx.blocks.at(-1).minutes,2.5);assert.match(elements.get('#blocks').innerHTML,/data-pause="3"/);
+assert.doesNotThrow(()=>run('serializeSections()'));
+ctx.blocks=[];run('refreshSectionComposer()');assert.equal(pauseButton.hidden,true);
+console.log('PASS: pauses remain available in Normal and EMOM, survive EMOM resizing and serialize correctly.');
