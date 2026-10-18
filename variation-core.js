@@ -15,7 +15,7 @@ const KraftlogModel={
     const s=String(value??'').replace(/\s/g,'');
     if(!/^\d+(\+\d+)*$/.test(s))throw Error('Bitte eine Zahl oder Teilstücke wie 5+2 eingeben.');
     const parts=s.split('+').map(Number);
-    if(parts.some(n=>n<=0||n>10000)||parts.reduce((a,b)=>a+b,0)>10000)throw Error('Ungültige Wiederholungszahl.');
+    if(parts.some(n=>n<0||n>10000)||parts.reduce((a,b)=>a+b,0)>10000)throw Error('Ungültige Wiederholungszahl.');
     return {parts,total:parts.reduce((a,b)=>a+b,0),interruptions:parts.length-1};
   },
   resolveVariations(entry,set){

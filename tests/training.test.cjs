@@ -5,8 +5,8 @@ const node=()=>({value:'',innerHTML:'',textContent:'',dataset:{},addEventListene
 for(const id of ['#editor','#blocks','#method','#emomSettings','#timerArea','#timerClock','#timerMinute'])elements.set(id,node());
 elements.get('#method').value='normal';
 let inputs=[];
-const ctx=vm.createContext({exerciseGallery:()=>'',console,structuredClone,setInterval,clearInterval,performance,document:{activeElement:null,querySelectorAll(sel){if(sel==='#blocks input[data-key]')return inputs;return []}},$:s=>elements.get(s),esc:s=>String(s??'').replaceAll('<','&lt;'),find:(type,id)=>ctx.data[type].find(x=>x.id===id),name:()=>'',toast(){},data:{exercises:[{id:'pull',name:'Klimmzüge',variationCategoryIds:['device','grip']}],variationCategories:[{id:'device',name:'Gerät',options:[{id:'bar',name:'Stange'},{id:'rings',name:'Ringe'}]},{id:'grip',name:'Griffart',options:[{id:'over',name:'Obergriff'}]}]},blocks:[{exerciseId:'pull',weightMode:'vest',variations:{device:{optionId:'bar'}},sets:[{reps:10,weight:10},{reps:8,weight:5}]}]});
-vm.runInContext(fs.readFileSync(root+'variation-core.js','utf8')+fs.readFileSync(root+'training-ui.js','utf8'),ctx);
+const ctx=vm.createContext({exerciseGallery:()=>'',suggestHistory(){},editing:{},console,structuredClone,setInterval,clearInterval,performance,document:{activeElement:null,querySelectorAll(sel){if(sel==='#blocks input[data-key]')return inputs;return []}},$:s=>elements.get(s),esc:s=>String(s??'').replaceAll('<','&lt;'),find:(type,id)=>ctx.data[type].find(x=>x.id===id),name:()=>'',toast(){},data:{workouts:[],exercises:[{id:'pull',name:'Klimmzüge',variationCategoryIds:['device','grip']}],variationCategories:[{id:'device',name:'Gerät',options:[{id:'bar',name:'Stange'},{id:'rings',name:'Ringe'}]},{id:'grip',name:'Griffart',options:[{id:'over',name:'Obergriff'}]}]},blocks:[{exerciseId:'pull',weightMode:'vest',variations:{device:{optionId:'bar'}},sets:[{reps:10,weight:10},{reps:8,weight:5}]}]});
+vm.runInContext(fs.readFileSync(root+'progress-core.js','utf8')+fs.readFileSync(root+'variation-core.js','utf8')+fs.readFileSync(root+'training-ui.js','utf8'),ctx);
 const run=s=>vm.runInContext(s,ctx);
 function click(op,set,extra={}){ctx.event={target:{closest:()=>({dataset:{op,block:'0',...(set===null?{}:{set:String(set)}),...extra}})}};run('handleBlockClick(event)')}
 click('variation',1,{category:'device',value:'rings'});
@@ -30,7 +30,7 @@ inputs=[{dataset:{block:'0',set:'0',key:'partsText'},value:'5+2'}];run('readBloc
 inputs[0].value='';assert.throws(()=>run('readBlocks(true)'));
 inputs=[{dataset:{block:'0',set:'0',key:'weight'},value:''}];assert.throws(()=>run('readBlocks(true)'));
 ctx.data.exercises[0].measure='seconds';inputs=[{dataset:{block:'0',set:'0',key:'partsText'},value:'30.5'}];run('readBlocks(true)');assert.equal(ctx.blocks[0].sets[0].seconds,30.5);
-inputs[0].value='0';assert.throws(()=>run('readBlocks(true)'));
+inputs[0].value='0';run('readBlocks(true)');assert.equal(ctx.blocks[0].sets[0].seconds,0);
 const app=fs.readFileSync(root+'app.js','utf8'),a=app.indexOf('function validateBackup('),b=app.indexOf("$('#import').onclick",a);run(app.slice(a,b));
 const old=JSON.parse(JSON.stringify({exercises:[{id:'pull',name:'Klimmzüge'}],routines:[],workouts:[{id:'w',name:'Training',date:'2026-10-17',time:'12:00',duration:60,entries:[{exerciseId:'pull',sets:[{reps:10,weight:20}]}]}]}));ctx.backup=old;assert.equal(run('validateBackup(backup)'),true);
 old.workouts[0].entries[0].weightMode='vest';old.workouts[0].entries[0].sets[0].variations={device:{optionId:''}};assert.equal(run('validateBackup(backup)'),true);

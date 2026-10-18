@@ -20,3 +20,5 @@
 .editor-delete{display:block;width:100%;margin-top:26px;background:transparent;border:1px solid #62353f;color:#e29aa9;min-height:46px}.editor-delete:hover{background:#35202a}
 
 #editor,#blocks{overflow-anchor:none;scroll-behavior:auto}
+
+.starter-tools{margin:0 0 24px;color:var(--muted,#a6afbe)}.starter-tools summary{padding:12px 0;cursor:pointer}.starter-tools button{display:block;width:100%;margin:8px 0}#typeFilters{margin:12px 0 24px}#typeFilters label{font-size:13px}#managerList{display:grid;gap:12px;margin-top:20px}#managerList .card{padding:16px}#managerList h3{overflow-wrap:anywhere}#exerciseCategories{margin-bottom:16px}.entry-composer>select{margin-bottom:12px}button[disabled]{opacity:.35;cursor:default}
