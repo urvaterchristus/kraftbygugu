@@ -20,7 +20,7 @@ const GuGuProgress={
  numbers(previous,seconds=false){return seconds?{seconds:previous?.seconds??previous?.reps??0,reps:previous?.reps??0,weight:previous?.weight||0}:{reps:previous?.reps??0,partsText:String(previous?.partsText??previous?.reps??0),weight:previous?.weight||0};},
  missingExercises(routine,entries){const seen=new Set(routine.entries.filter(e=>e.type!=='pause').map(e=>e.exerciseId));return entries.filter(e=>e.type!=='pause'&&!seen.has(e.exerciseId)&&seen.add(e.exerciseId));},
  categoryName(value,exercise){const prefix=exercise+' #';const text=value.trim();return prefix+(text.startsWith(prefix)?text.slice(prefix.length):text.replace(/^.*?\s#/, '')).trim();},
- starter(source,media){const out=structuredClone({exercises:source.exercises,routines:source.routines,variationCategories:source.variationCategories,workouts:[],trash:[]});if(!media)out.exercises.forEach(e=>{delete e.previewImage;delete e.exerciseVideo;delete e.media;delete e.mediaType});return out;},
+ starter(source,media){const out=structuredClone({exercises:source.exercises,routines:source.routines,variationCategories:source.variationCategories,workouts:[],trash:[]});if(!media)out.exercises.forEach(e=>{delete e.previewImage;delete e.exerciseVideo;delete e.media;delete e.mediaType;delete e.thumbnail;delete e.thumbnailFor});return out;},
  mergeStarter(current,incoming){
   const next=structuredClone(current),maps={};
   for(const key of ['exercises','routines','variationCategories']){maps[key]=new Map();for(const x of incoming[key])maps[key].set(x.id,crypto.randomUUID());}

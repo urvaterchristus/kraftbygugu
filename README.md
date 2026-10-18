@@ -113,3 +113,11 @@ Version 8.8: Änderungen an Variationen, Zusatzgewichten und Sets erhalten Scrol
 ## GuGu 9.3
 
 Beim Vorladen einer Routine bleiben deren Set-Werte erhalten. Änderungen im ersten Set lassen sich je Übung nach Rückfrage auf die übrigen Sets übertragen (WDH, Sekunden oder kg jeweils getrennt). Die Nachfrage funktioniert auch beim Verlassen des Feldes. Neue Sets kopieren die aktuellen Werte und Einstellungen des letzten Sets.
+
+## GuGu 10.0: Medien bei Bedarf
+
+- Bibliothek, Trainings und Routinen zeigen kompakte 44-Pixel-Vorschaubilder und getrennte Schaltflächen für Ansehen/Bearbeiten.
+- Die separate Übungsansicht zeigt Bild, Video, Notizen und Variationsoptionen. Das Video erhält seine Quelle erst beim Öffnen der Videoseite; Schließen stoppt es und gibt Objekt-URLs frei.
+- IndexedDB-Version 2 speichert originale Medien unverändert als Blobs im Store `media`. Der Arbeitsdatensatz enthält nur Referenzen und kleine Vorschaubilder. Bestehende Daten werden einmalig umgestellt. Der alte Arbeitsdatensatz wird erst nach erfolgreichem Schreiben aller Medien ersetzt.
+- Sicherungen enthalten weiterhin alle Originalmedien als portable JSON-Datei. Der Export setzt die Datei stückweise zusammen. Bei großen Dateien kann iOS einen zweiten Tipp auf „Sicherung bereit · In Dateien sichern“ benötigen.
+- Startersets ohne Medien enthalten auch keine Vorschaubilder.
