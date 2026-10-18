@@ -98,3 +98,14 @@ Version 8.6: Trainings, Übungen und Variationen können ausschließlich in ihre
 Version 8.7: Routinen speichern Normal/EMOM sowie die EMOM-Minuten. Beim Start oder Übernehmen einer Routine werden Methode und Minuten in das neue Training kopiert. Bestehende Routinen ohne Methodenangabe gelten als Normal.
 
 Version 8.8: Änderungen an Variationen, Zusatzgewichten und Sets erhalten Scrollposition und Fokus. Medienwechsel scrollen ausschließlich horizontal. Neue Benutzer-Scrollgesten haben Vorrang vor einer ausstehenden Layoutkorrektur. Test: `node tests/scroll.test.cjs`.
+
+
+## GuGu 9.1
+
+- Trainings merken die gewählte Routine. Beim Speichern können neue Übungen mit Bestätigung zur Routine ergänzt werden.
+- Vorschläge für Kg/WDH/SEK stammen aus dem jüngsten Training mit gleicher Übung und effektiver Variationskombination (inklusive Zusatzgewicht-Modus). Ohne Treffer gilt 0. Manuell geänderte Felder werden bei Variationswechseln erhalten.
+- Beim Antippen werden Zahlenfelder geleert; ohne neue Eingabe bleibt der bisherige Wert erhalten. Änderungen an WDH in Set 1 lassen sich nach Rückfrage auf alle Sets dieser Übung anwenden.
+- Startersets enthalten nur Übungen, Routinen und Variationen, wahlweise mit oder ohne Medien. Import über „Sicherung öffnen“ fügt sie mit neuen IDs hinzu, ohne Trainings zu ersetzen.
+- Routinen können über Pfeile umgeordnet werden. Übungen und Variationskategorien werden alphabetisch angezeigt; Optionsreihenfolgen bleiben erhalten.
+- Übungstypen und Filter: Stützend, Hängend, Liegend, Stehend, Dehnung. Orte bieten Vorschläge aus Trainings und erlauben freie Eingabe.
+- „Variationen bearbeiten“ öffnet die Kategorienverwaltung im laufenden Editor. Der Zurück-Pfeil stellt den Entwurf inklusive Dateiauswahl und Scrollposition wieder her.
