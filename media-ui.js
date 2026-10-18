@@ -32,18 +32,32 @@ async function loadViewerVideo(){
  catch(error){if(generation===viewerGeneration&&status)status.textContent=error.message||'Video konnte nicht geladen werden.';}
  finally{active.loading=false;}
 }
-function viewerVariations(exercise){
+function viewerSelection(exercise,entry,set){
+ const selected=KraftlogModel.resolveVariations(entry,set||{}),mode=set?.weightMode??entry.weightMode??'none';
+ const chip=(label,on)=>`<button type="button" disabled aria-pressed="${on}">${esc(label)}</button>`;
+ const ids=new Set([...(exercise.variationCategoryIds||[]),...Object.keys(selected)]);
+ const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>ids.has(c.id)));
+ return '<div class="viewer-selection"><h4>Zusatzgewicht</h4><div class="choice-buttons">'+[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']].map(([id,label])=>chip(label,mode===id)).join('')+'</div>'+categories.map(c=>{
+  const value=selected[c.id]||{},option=c.options.find(o=>o.id===value.optionId);
+  return `<h4>${esc(c.name)}</h4><div class="choice-buttons">${chip('Keine Auswahl',!value.optionId)}${c.options.map(o=>chip(o.name,o.id===value.optionId)).join('')}${value.optionId&&!option?chip('Nicht mehr vorhandene Option',true):''}</div>${option?.extra&&value.value!==undefined&&value.value!==''?`<p>${esc(value.value)} ${esc(option.extra.unit)}</p>`:''}`;
+ }).join('')+'</div>';
+}
+function viewerVariations(exercise,entry){
+ if(entry){
+  const seconds=(entry.measure||exercise.measure)==='seconds';
+  return '<section class="viewer-variations"><h3>Einstellungen dieser Übung</h3>'+viewerSelection(exercise,entry)+'<h3>Sets</h3><div class="viewer-set-table"><div class="viewer-set-head"><span>Set</span><span>Kg</span><span>'+ (seconds?'SEK':'WDH')+'</span></div>'+(entry.sets||[]).map((set,i)=>`<div class="viewer-set-row"><span>${i+1}</span><span>${esc(set.weight??'–')}</span><span>${esc(seconds?(set.seconds??set.reps):(set.partsText??set.reps))}</span><details><summary>Variationen · Set ${i+1}</summary>${viewerSelection(exercise,entry,set)}</details></div>`).join('')+'</div></section>';
+ }
  const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>(exercise.variationCategoryIds||[]).includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===exercise.id)));
  return '<section class="viewer-variations"><h3>Variationsoptionen</h3><h4>Zusatzgewicht</h4><div class="viewer-options"><span>Ohne</span><span>Gewichtsweste</span><span>Gewichtsgürtel</span></div>'+categories.map(c=>`<h4>${esc(c.name)}</h4><div class="viewer-options">${c.options.map(o=>`<span>${esc(o.name)}${o.extra?' ('+esc(o.extra.unit)+')':''}</span>`).join('')}</div>`).join('')+'</section>';
 }
-async function viewExercise(id){
+async function viewExercise(id,entry){
  const exercise=find('exercises',id);if(!exercise){toast('Diese Übung ist nicht mehr vorhanden.');return;}
  releaseExerciseViewer();const generation=viewerGeneration,media=exerciseMedia(exercise);activeExerciseViewer={...media,urls:[],loaded:false,loading:false};
- $('#exerciseViewerTitle').textContent=exercise.name;$('#exerciseViewerBody').innerHTML=exerciseGallery(exercise)+(exercise.notes?`<p class="viewer-notes">${esc(exercise.notes)}</p>`:'')+viewerVariations(exercise);$('#exerciseViewer').showModal();
+ $('#exerciseViewerTitle').textContent=exercise.name;$('#exerciseViewerBody').innerHTML=exerciseGallery(exercise)+(exercise.notes?`<p class="viewer-notes">${esc(exercise.notes)}</p>`:'')+viewerVariations(exercise,entry);$('#exerciseViewer').showModal();
  if(media.image)try{const blob=await GuGuMediaStorage.get(media.image);if(generation!==viewerGeneration)return;const url=URL.createObjectURL(blob);activeExerciseViewer.urls.push(url);$('#exerciseViewer [data-view-image]').src=url;}catch(error){if(generation===viewerGeneration)$('#exerciseViewerBody').insertAdjacentHTML('afterbegin',`<p role="alert">${esc(error.message)}</p>`);}
 }
 document.addEventListener('click',event=>{
- const viewerButton=event.target.closest('[data-view-exercise]');if(viewerButton){viewExercise(viewerButton.dataset.viewExercise);return;}
+ const viewerButton=event.target.closest('[data-view-exercise]');if(viewerButton){const context=viewerButton.dataset;let entry;if(context.viewDraft==='true'){readBlocks();entry=blocks[Number(context.viewEntry)];}else if(context.viewRecordId){entry=find(context.viewRecordType,context.viewRecordId)?.entries[Number(context.viewEntry)];}viewExercise(context.viewExercise,entry?.exerciseId===context.viewExercise?structuredClone(entry):null);return;}
  if(event.target.closest('#closeExerciseViewer')){$('#exerciseViewer').close();return;}
  const button=event.target.closest('[data-media-index]');if(!button)return;
  const track=button.closest('.exercise-gallery').querySelector('.media-track');
@@ -59,7 +73,10 @@ document.addEventListener('scroll',event=>{
  track.querySelectorAll('video').forEach(video=>{if(video.closest('.media-page')!==track.children[active])video.pause();});
 },true);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)document.querySelectorAll('video').forEach(v=>v.pause());});
-function exerciseViewButtons(id){return id?`<div class="exercise-view-actions"><button type="button" data-view-exercise="${esc(id)}">Ansehen</button><button type="button" data-edit-exercise="${esc(id)}">Bearbeiten</button></div>`:'';}
+function exerciseViewButtons(id,context={}){
+ const attrs=context.draft?` data-view-draft="true" data-view-entry="${context.index}"`:context.recordId?` data-view-record-type="${esc(context.type)}" data-view-record-id="${esc(context.recordId)}" data-view-entry="${context.index}"`:'';
+ return id?`<div class="exercise-view-actions"><button type="button" data-view-exercise="${esc(id)}"${attrs}>Ansehen</button>${context.type==='workouts'?'':`<button type="button" data-edit-exercise="${esc(id)}">Bearbeiten</button>`}</div>`:'';
+}
 function containsMediaReferences(state){const owners=[...(state?.exercises||[]),...(state?.trash||[]).filter(t=>t.type==='exercises').map(t=>t.record)];return owners.some(e=>['previewImage','exerciseVideo','media'].some(field=>GuGuMediaStorage.isRef(e[field])));}
 document.addEventListener('click',event=>{const button=event.target.closest('[data-edit-exercise]');if(!button)return;const id=button.dataset.editExercise;if(!find('exercises',id))return;if($('#editor').open)editorNavigation.push(draftSnapshot());open('exercises',id);});
 document.querySelector('#exerciseViewer').addEventListener('close',releaseExerciseViewer);

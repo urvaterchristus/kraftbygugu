@@ -1,0 +1,8 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');const app=fs.readFileSync(__dirname+'/../app.js','utf8');
+const button={},editor={close(){editor.closed=true}},routine={id:'r',name:'Routine',entries:[]};let deleted;
+const ctx=vm.createContext({editorNavigation:[],$:id=>id==='#deleteEntry'?button:editor,editing:{type:'routines',id:'r'},esc:s=>String(s),tab:'routines',data:{routines:[routine]},entrySummary:()=>'',find:()=>routine,deletionBlocked:()=>'',confirmAction:async()=>true,moveToTrash:async(type,id)=>{deleted={type,id}},toast(){}});
+vm.runInContext(app.slice(app.indexOf('function syncEditorDelete('),app.indexOf('function deletionBlocked(')),ctx);vm.runInContext('syncEditorDelete()',ctx);assert.equal(button.hidden,false);assert.equal(button.textContent,'Routine löschen');
+ctx.editing={type:'routines'};vm.runInContext('syncEditorDelete()',ctx);assert.equal(button.hidden,true);ctx.editing={type:'routines',id:'r'};
+vm.runInContext(app.slice(app.indexOf("$('#deleteEntry').onclick="),app.indexOf('async function moveToTrash(')),ctx);
+vm.runInContext(app.slice(app.indexOf('function card('),app.indexOf('function input(')),ctx);ctx.routine=routine;assert.doesNotMatch(vm.runInContext('card(routine)',ctx),/data-action="delete"|>Löschen</);
+(async()=>{await button.onclick();assert.deepEqual(deleted,{type:'routines',id:'r'});assert.equal(editor.closed,true);console.log('PASS: saved routines delete only from editor, new routines hide delete, overview has no delete action.');})().catch(e=>{console.error(e);process.exitCode=1});
