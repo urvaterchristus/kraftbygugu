@@ -64,13 +64,23 @@ function returnEditorDraft(){
  }
  updateBackButton();$('#editor').scrollTop=d.scroll;
 }
-function renderExerciseCategories(){const x=editing.id?find('exercises',editing.id):null;const host=$('#exerciseCategories');const selected=host.dataset.initialized?[...host.querySelectorAll('input:checked')].map(el=>el.value):(x?.variationCategoryIds||[]);const known=new Set(JSON.parse(host.dataset.knownCategories||'[]'));for(const c of data.variationCategories)if(c.scope==='exercise'&&c.exerciseId===editing.id&&!known.has(c.id))selected.push(c.id);host.dataset.knownCategories=JSON.stringify(data.variationCategories.map(c=>c.id));host.dataset.initialized='true';host.innerHTML=GuGuProgress.alphabetical(data.variationCategories.filter(c=>c.scope!=='exercise'||c.exerciseId===editing.id)).map(c=>`<label><input type="checkbox" class="category-check" value="${esc(c.id)}" ${selected.includes(c.id)?'checked':''} style="width:auto"> ${esc(c.name)}</label>`).join('');}
+function renderExerciseCategories(){
+ const x=editing.id?find('exercises',editing.id):null,host=$('#exerciseCategories'),scroll=$('#editor').scrollTop;
+ const selected=host.dataset.initialized?[...host.querySelectorAll('input:checked')].map(el=>el.value):[...(x?.variationCategoryIds||[])];
+ const known=new Set(JSON.parse(host.dataset.knownCategories||'[]'));
+ for(const c of data.variationCategories)if(c.scope==='exercise'&&c.exerciseId===editing.id&&!known.has(c.id)&&!selected.includes(c.id))selected.push(c.id);
+ host.dataset.knownCategories=JSON.stringify(data.variationCategories.map(c=>c.id));host.dataset.initialized='true';
+ host.innerHTML='<p class="hint">Zugewiesene Kategorien mit ↑ / ↓ sortieren. Diese Reihenfolge gilt beim Eintragen und in den Statistiken.</p>'+GuGuProgress.orderedCategories(data.variationCategories.filter(c=>c.scope!=='exercise'||c.exerciseId===editing.id),selected).map(c=>{const index=selected.indexOf(c.id);return `<div class="category-order-row" data-category-row="${esc(c.id)}"><label><input type="checkbox" class="category-check" value="${esc(c.id)}" ${index>=0?'checked':''}> ${esc(c.name)}</label><button type="button" data-category-move="up" aria-label="${esc(c.name)} nach oben" ${index<=0?'disabled':''}>↑</button><button type="button" data-category-move="down" aria-label="${esc(c.name)} nach unten" ${index<0||index===selected.length-1?'disabled':''}>↓</button></div>`;}).join('');
+ host.onchange=()=>renderExerciseCategories();
+ host.onclick=event=>{const button=event.target.closest('[data-category-move]');if(!button)return;const row=button.closest('[data-category-row]'),rows=[...host.querySelectorAll('[data-category-row]')].filter(r=>r.querySelector('input').checked),index=rows.indexOf(row),target=rows[index+(button.dataset.categoryMove==='up'?-1:1)];if(!target)return;host.insertBefore(button.dataset.categoryMove==='up'?row:target,button.dataset.categoryMove==='up'?target:row);renderExerciseCategories();};
+ $('#editor').scrollTop=scroll;
+}
 function updateExercisePicker(){const picker=$('#exercisePick');if(!picker)return;const selected=picker.value,type=$('#pickerType')?.value||'';picker.innerHTML='<option value="">Übung auswählen oder neu anlegen …</option>'+GuGuProgress.alphabetical(data.exercises).filter(e=>!type||e.exerciseType===type).map(e=>`<option value="${e.id}" ${selected===e.id?'selected':''}>${esc(e.name)}</option>`).join('')+'<option value="__new__">＋ Neue Übung anlegen</option>';}
 function enhanceEditor(){
  $('#editorForm .dialog-actions').hidden=false;
  if(editing.type==='exercises'){
   $('#exerciseCategories').dataset.initialized='true';$('#exerciseCategories').dataset.knownCategories=JSON.stringify(data.variationCategories.map(c=>c.id));const x=editing.id?find('exercises',editing.id):null,measure=$('label[for="measure"]');measure.insertAdjacentHTML('beforebegin','<label for="exerciseType">Übungstyp</label><select id="exerciseType"><option value="">Nicht zugeordnet</option>'+GuGuProgress.types.map(t=>`<option ${x?.exerciseType===t?'selected':''}>${esc(t)}</option>`).join('')+'</select>');
-  $('#fields').insertAdjacentHTML('beforeend','<button type="button" id="manageExerciseVariations">Variationen / Kategorien bearbeiten</button>');$('#manageExerciseVariations').onclick=showVariationManager;
+  $('#fields').insertAdjacentHTML('beforeend','<button type="button" id="manageExerciseVariations">Variationen / Kategorien bearbeiten</button>');$('#manageExerciseVariations').onclick=showVariationManager;renderExerciseCategories();
  }
  if(editing.type==='variations'){
   const updatePrefix=()=>{if($('#scope').value==='exercise'&&$('#ownerExercise').value){$('#name').value=GuGuProgress.categoryName($('#name').value,name($('#ownerExercise').value));}};

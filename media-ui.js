@@ -42,11 +42,11 @@ function viewerVariationChanges(entry,set){
 function viewerSelection(exercise,entry,set){
  const selected=KraftlogModel.resolveVariations(entry,set||{}),mode=set?.weightMode??entry.weightMode??'none';
  const chip=label=>`<button type="button" disabled aria-pressed="true">${esc(label)}</button>`;
- const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>Object.hasOwn(selected,c.id)));
+ const categories=GuGuProgress.orderedCategories(data.variationCategories.filter(c=>Object.hasOwn(selected,c.id)),exercise.variationCategoryIds);
  return '<div class="viewer-selection"><h4>Zusatzgewicht</h4><div class="choice-buttons">'+chip(({none:'Ohne',vest:'Gewichtsweste',belt:'Gewichtsgürtel'})[mode]||'Ohne')+'</div>'+categories.map(c=>{
   const value=selected[c.id]||{},option=c.options.find(o=>o.id===value.optionId);
   if(!value.optionId&&!entry.variations?.[c.id]?.optionId)return '';
-  return `<h4>${esc(c.name)}</h4><div class="choice-buttons">${chip(value.optionId?(option?.name||'Nicht mehr vorhandene Option'):'Keine Auswahl')}</div>${option?.extra&&value.value!==undefined&&value.value!==''?`<p>${esc(value.value)} ${esc(option.extra.unit)}</p>`:''}`;
+  return `<h4>${esc(GuGuProgress.categoryLabel(c))}</h4><div class="choice-buttons">${chip(value.optionId?(option?.name||'Nicht mehr vorhandene Option'):'Keine Auswahl')}</div>${option?.extra&&value.value!==undefined&&value.value!==''?`<p>${esc(value.value)} ${esc(option.extra.unit)}</p>`:''}`;
  }).join('')+'</div>';
 }
 function viewerVariations(exercise,entry){
@@ -54,8 +54,8 @@ function viewerVariations(exercise,entry){
   const seconds=(entry.measure||exercise.measure)==='seconds',unit=entry._viewMethod==='emom'?'Minute':'Set';
   return '<section class="viewer-variations"><h3>Einstellungen dieser Übung</h3>'+viewerSelection(exercise,entry)+'<h3>Sets</h3><div class="viewer-set-table"><div class="viewer-set-head"><span>'+unit+'</span><span>Kg</span><span>'+ (seconds?'SEK':'WDH')+'</span></div>'+(entry.sets||[]).map((set,i)=>{const changed=viewerVariationChanges(entry,set).changed;return `<div class="viewer-set-row"><span>${i+1}</span><span>${esc(set.weight??'–')}</span><span>${esc(seconds?(set.seconds??set.reps):(set.partsText??set.reps))}</span>${changed?`<details class="has-variation-changes"><summary>Variationen · ${unit} ${i+1}<span class="variation-change-label">Geändert</span></summary>${viewerSelection(exercise,entry,set)}</details>`:''}</div>`;}).join('')+'</div></section>';
  }
- const categories=GuGuProgress.alphabetical(data.variationCategories.filter(c=>(exercise.variationCategoryIds||[]).includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===exercise.id)));
- return '<section class="viewer-variations"><h3>Variationsoptionen</h3><h4>Zusatzgewicht</h4><div class="viewer-options"><span>Ohne</span><span>Gewichtsweste</span><span>Gewichtsgürtel</span></div>'+categories.map(c=>`<h4>${esc(c.name)}</h4><div class="viewer-options">${c.options.map(o=>`<span>${esc(o.name)}${o.extra?' ('+esc(o.extra.unit)+')':''}</span>`).join('')}</div>`).join('')+'</section>';
+ const categories=GuGuProgress.orderedCategories(data.variationCategories.filter(c=>(exercise.variationCategoryIds||[]).includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===exercise.id)),exercise.variationCategoryIds);
+ return '<section class="viewer-variations"><h3>Variationsoptionen</h3><h4>Zusatzgewicht</h4><div class="viewer-options"><span>Ohne</span><span>Gewichtsweste</span><span>Gewichtsgürtel</span></div>'+categories.map(c=>`<h4>${esc(GuGuProgress.categoryLabel(c))}</h4><div class="viewer-options">${c.options.map(o=>`<span>${esc(o.name)}${o.extra?' ('+esc(o.extra.unit)+')':''}</span>`).join('')}</div>`).join('')+'</section>';
 }
 async function viewExercise(id,entry){
  const exercise=find('exercises',id);if(!exercise){toast('Diese Übung ist nicht mehr vorhanden.');return;}

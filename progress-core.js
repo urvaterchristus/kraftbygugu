@@ -1,6 +1,8 @@
 const GuGuProgress={
  types:['Stützend','Hängend','Liegend','Hockend','Stehend','Dehnung'],
  alphabetical(items){return [...items].sort((a,b)=>a.name.localeCompare(b.name,'de',{sensitivity:'base',numeric:true}));},
+ categoryLabel(category){return category.scope==='exercise'?category.name.replace(/^[^#]*#\s*/, ''):category.name;},
+ orderedCategories(categories,ids=[]){const rank=new Map(ids.map((id,i)=>[id,i]));return this.alphabetical(categories).sort((a,b)=>(rank.get(a.id)??Infinity)-(rank.get(b.id)??Infinity));},
  signature(entry,set){
   const variations={...entry.variations,...set?.variations};
   return JSON.stringify([entry.exerciseId,entry.measure||'reps',set?.weightMode??entry.weightMode??'none',Object.keys(variations).sort().filter(k=>variations[k]?.optionId).map(k=>[k,variations[k].optionId,variations[k].value??''])]);

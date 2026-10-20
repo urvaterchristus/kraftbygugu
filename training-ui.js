@@ -31,7 +31,7 @@ document.addEventListener?.('touchmove',()=>{editorViewRevision++},{passive:true
 document.addEventListener?.('wheel',()=>{editorViewRevision++},{passive:true,capture:true});
 const weightModes=[['none','Ohne'],['vest','Gewichtsweste'],['belt','Gewichtsgürtel']];
 function measureFor(e){return e.measure||find('exercises',e.exerciseId)?.measure||'reps'}
-function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return GuGuProgress.alphabetical(data.variationCategories.filter(c=>ids.includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===e.exerciseId)))}
+function categoriesFor(e){const ids=find('exercises',e.exerciseId)?.variationCategoryIds||[];return GuGuProgress.orderedCategories(data.variationCategories.filter(c=>ids.includes(c.id)&&(c.scope!=='exercise'||c.exerciseId===e.exerciseId)),ids)}
 function weightModeFor(e,s){return s?.weightMode??e.weightMode??'none'}
 function targetAttrs(i,j){return `data-block="${i}"${j===null?'':` data-set="${j}"`}`}
 function variationMarkup(e,i,j=null){
@@ -40,14 +40,14 @@ function variationMarkup(e,i,j=null){
  let html=`<fieldset class="variation-choice"><legend>Zusatzgewicht</legend><div class="choice-buttons">${weightModes.map(([id,label])=>`<button type="button" data-op="weight-mode" ${attrs} data-value="${id}" aria-pressed="${mode===id}">${label}</button>`).join('')}</div></fieldset>`;
  return html+categoriesFor(e).map(c=>{
   const v=selected[c.id]||{},oid=v.optionId||'',option=c.options.find(o=>o.id===oid);
-  return `<fieldset class="variation-choice"><legend>${esc(c.name)}</legend><div class="choice-buttons"><button type="button" data-op="variation" ${attrs} data-category="${esc(c.id)}" data-value="" aria-pressed="${!oid}">Keine Auswahl</button>${c.options.map(o=>`<button type="button" data-op="variation" ${attrs} data-category="${esc(c.id)}" data-value="${esc(o.id)}" aria-pressed="${oid===o.id}">${esc(o.name)}</button>`).join('')}</div>${option?.extra?`<label>${esc(option.name)} (${esc(option.extra.unit)})<input aria-label="${esc(c.name)} (${esc(option.extra.unit)})" type="number" step="any" min="0" data-extra="${esc(c.id)}" ${attrs} value="${esc(v.value??'')}"></label>`:''}</fieldset>`;
+  return `<fieldset class="variation-choice"><legend>${esc(GuGuProgress.categoryLabel(c))}</legend><div class="choice-buttons"><button type="button" data-op="variation" ${attrs} data-category="${esc(c.id)}" data-value="" aria-pressed="${!oid}">Keine Auswahl</button>${c.options.map(o=>`<button type="button" data-op="variation" ${attrs} data-category="${esc(c.id)}" data-value="${esc(o.id)}" aria-pressed="${oid===o.id}">${esc(o.name)}</button>`).join('')}</div>${option?.extra?`<label>${esc(option.name)} (${esc(option.extra.unit)})<input aria-label="${esc(GuGuProgress.categoryLabel(c))} (${esc(option.extra.unit)})" type="number" step="any" min="0" data-extra="${esc(c.id)}" ${attrs} value="${esc(v.value??'')}"></label>`:''}</fieldset>`;
  }).join('');
 }
 function variationSummary(e,s){
  const selected=s?KraftlogModel.resolveVariations(e,s):(e.variations||{});
  return [weightModes.find(([id])=>id===weightModeFor(e,s))?.[1]||'Ohne',...categoriesFor(e).map(c=>{
   const v=selected[c.id],o=c.options.find(o=>o.id===v?.optionId);
-  return o?`${c.name}: ${o.name}${o.extra&&v.value!==''&&v.value!=null?' '+v.value+' '+o.extra.unit:''}`:null;
+  return o?`${GuGuProgress.categoryLabel(c)}: ${o.name}${o.extra&&v.value!==''&&v.value!=null?' '+v.value+' '+o.extra.unit:''}`:null;
  })].filter(Boolean).join(' · ');
 }
 function hasSetOverrides(s){return Object.keys(s.variations||{}).length>0||Object.hasOwn(s,'weightMode')}

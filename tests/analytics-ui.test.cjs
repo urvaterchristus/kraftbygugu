@@ -11,3 +11,7 @@ run("analyticsExercise='pull';renderAnalytics()");html=els.get('#analyticsPanel'
 assert.match(html,/Griff: Neu/);assert.match(html,/<details class="analytics-adjust">/);assert.doesNotMatch(html,/<details[^>]*open/);assert.doesNotMatch(html,/🏆/);assert.equal(run('JSON.parse(analyticsComparison)[0].includes("b")'),true);
 assert.match(html,/10 WDH/);assert.match(html,/8 WDH/);assert.match(html,/data-analytics-back/);
 console.log('PASS: exercise list first, latest settings instead of oldest/highest, collapsed comparisons, unchanged baseline record rule and visible history.');
+
+data.exercises[0].variationCategoryIds=['grip'];data.variationCategories[0].scope='exercise';data.variationCategories[0].name='Klimmzüge #Griff';
+run('renderAnalytics()');html=els.get('#analyticsPanel').innerHTML;assert.match(html,/<p>Griff: Neu<\/p>/);assert.match(html,/<p>1 Sets<\/p>/);assert.doesNotMatch(html,/Klimmzüge #Griff/);
+console.log('PASS: statistics display one setting per line, shortened category names and set count.');

@@ -9,3 +9,8 @@ const d={exercises:[{id:'a',name:'A',variationCategoryIds:['c'],previewImage:'pr
 const stripped=P.starter(d,false),full=P.starter(d,true);assert.equal(stripped.workouts.length,0);assert.equal(stripped.trash.length,0);assert.equal(stripped.exercises[0].previewImage,undefined);assert.equal(stripped.exercises[0].media,undefined);assert.equal(full.exercises[0].previewImage,'private-image');assert.equal(d.exercises[0].previewImage,'private-image');
 const merged=P.mergeStarter(d,stripped);assert.equal(merged.workouts.length,1);assert.equal(merged.exercises.length,2);assert.notEqual(merged.exercises[1].id,'a');assert.equal(merged.routines[1].entries[0].exerciseId,merged.exercises[1].id);assert.equal(merged.variationCategories[1].exerciseId,merged.exercises[1].id);assert.equal(Object.keys(merged.routines[1].entries[0].variations)[0],merged.variationCategories[1].id);assert.equal(merged.exercises[1].variationCategoryIds[0],merged.variationCategories[1].id);
 console.log('Progress/history/starterset tests passed');
+
+const categories=[{id:'b',name:'Dips #Körperposition',scope:'exercise'},{id:'a',name:'Gerät',scope:'global'},{id:'c',name:'Dips #Range',scope:'exercise'}];
+assert.equal(P.categoryLabel(categories[0]),'Körperposition');assert.equal(P.categoryLabel(categories[1]),'Gerät');
+assert.deepEqual([...P.orderedCategories(categories,['c','a','b'])].map(c=>c.id),['c','a','b']);assert.equal(categories[0].name,'Dips #Körperposition');
+console.log('PASS: per-exercise category order and display-only prefix removal without changing stored names.');
