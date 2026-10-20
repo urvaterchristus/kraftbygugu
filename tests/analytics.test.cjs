@@ -1,0 +1,14 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({console,structuredClone});for(const f of ['variation-core.js','progress-core.js','analytics-core.js'])vm.runInContext(fs.readFileSync(__dirname+'/../'+f,'utf8'),ctx);const A=vm.runInContext('GuGuAnalytics',ctx);
+const exercise=(reps,extra={})=>({exerciseId:'pull',measure:'reps',weightMode:'none',variations:{},sets:reps.map(reps=>({reps,partsText:String(reps),weight:0})),...extra});
+const w=(id,method,reps,extra={})=>({id,method,date:'2026-10-'+id.padStart(2,'0'),time:'10:00',duration:30,entries:[exercise(reps)],...extra});
+const first=w('1','normal',[5,8,10]);let r=A.records(A.samples([first]));assert.equal(r[0].improved,false);assert.equal(r[0].events.length,0);
+r=A.records(A.samples([first,w('2','normal',[10]),w('3','normal',[11])]));assert.equal(r[0].best.score,11);assert.deepEqual([...r[0].events],['3']);
+const split=A.samples([first,w('2','emom',[5,5]),w('3','emom',[6,6]),w('4','emom',[8,8,8]),w('5','normal',['5+5'])]);r=A.records(split);assert.equal(r.length,4);const em=r.find(x=>x.best.method==='emom'&&x.best.count===2);assert.equal(em.best.score,12);assert.equal(em.improved,true);assert.equal(r.find(x=>x.best.count===3&&x.best.method==='emom').improved,false);
+const varied=w('2','normal',[20]);varied.entries[0].variations={grip:{optionId:'rings'}};assert.equal(A.records(A.samples([first,varied])).length,2);
+const weighted=w('2','normal',[20]);weighted.entries[0].weightMode='vest';weighted.entries[0].sets[0].weight=10;assert.equal(A.records(A.samples([first,weighted])).length,2);
+const seconds=w('2','normal',[30]);seconds.entries[0].measure='seconds';seconds.entries[0].sets[0].seconds=30;assert.equal(A.samples([seconds])[0].score,30);
+const multi=[{key:'k',score:5,workoutId:'first'},{key:'k',score:10,workoutId:'first'}];assert.equal(A.records(multi)[0].improved,false);assert.equal(A.records(multi)[0].best.score,10);
+const before=JSON.stringify(first);A.samples([first]);assert.equal(JSON.stringify(first),before);
+const summary=A.summary([first,{...first,id:'other'},w('2','emom',[5])],'month',new Date('2026-10-20T12:00:00'));assert.equal(summary.count,3);assert.equal(summary.days,2);assert.equal(summary.minutes,90);
+console.log('PASS: first workout never earns a record; strict later improvements, equal values, per-method/variation/weight/parts/EMOM-set-count comparisons, seconds, day counts and immutable source data.');

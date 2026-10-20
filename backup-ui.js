@@ -1,6 +1,6 @@
 function backupStatus(message){const el=$('#fileStatus');if(el)el.textContent=message;}
 let preparedBackup=null,preparedBackupData=null;
-function invalidatePreparedBackup(){preparedBackup=null;preparedBackupData=null;const button=$('#saveFile');if(button)button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg>Dateien sichern';}
+function invalidatePreparedBackup(){preparedBackup=null;preparedBackupData=null;const button=$('#saveFile');if(button)button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg>Alle Daten sichern';}
 async function createBackupFile(){
  const now=new Date(),local=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString();
  return GuGuMediaStorage.exportFile({format:'kraftlog',version:5,exportedAt:now.toISOString(),data},'kraftlog-sicherung-'+local.slice(0,19).replace(/:/g,'-')+'.json');
