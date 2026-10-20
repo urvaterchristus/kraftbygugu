@@ -52,12 +52,12 @@ function handleFirstSetValue(el){
  return pendingSetChange;
 }
 function draftSnapshot(kind='editor'){
- if($('#blocks'))readBlocks();return {kind,sections:structuredClone(trainingSections),activeSectionId,editing:{...editing},blocks,nodes:[...$('#fields').childNodes],title:$('#dialogTitle').textContent,scroll:$('#editor').scrollTop,submitHidden:$('#editorForm .dialog-actions').hidden};
+ if($('#blocks'))readBlocks();return {kind,editing:{...editing},blocks,nodes:[...$('#fields').childNodes],title:$('#dialogTitle').textContent,scroll:$('#editor').scrollTop,submitHidden:$('#editorForm .dialog-actions').hidden};
 }
 function updateBackButton(){const back=editorNavigation.length||parentDraft;$('#close').textContent=back?'←':'✕';$('#close').setAttribute('aria-label',back?'Zurück':'Schließen');}
 function returnEditorDraft(){
  const d=editorNavigation.pop();if(!d)return;
- editing=d.editing;blocks=d.blocks;trainingSections=d.sections||trainingSections;activeSectionId=d.activeSectionId||activeSectionId;$('#fields').replaceChildren(...d.nodes);$('#dialogTitle').textContent=d.title;$('#formError').textContent='';$('#editorForm .dialog-actions').hidden=d.submitHidden;syncEditorDelete();
+ editing=d.editing;blocks=d.blocks;$('#fields').replaceChildren(...d.nodes);$('#dialogTitle').textContent=d.title;$('#formError').textContent='';$('#editorForm .dialog-actions').hidden=d.submitHidden;syncEditorDelete();
  if(d.kind==='manager')renderVariationManager();else{
   if($('#exerciseCategories'))renderExerciseCategories();
   if($('#blocks')){renderBlocks(rememberBlockUI(),null,false);updateExercisePicker();}
@@ -80,7 +80,7 @@ function enhanceEditor(){
   $('#exercisePick').closest('.entry-composer').insertAdjacentHTML('afterbegin','<label for="pickerType">Übungstyp filtern</label><select id="pickerType">'+typeOptions()+'</select>');$('#pickerType').onchange=updateExercisePicker;
  }
  if($('#location')){$('#location').setAttribute('list','knownLocations');$('#location').insertAdjacentHTML('afterend','<datalist id="knownLocations">'+[...new Set(data.workouts.map(w=>w.location?.trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de')).map(v=>`<option value="${esc(v)}"></option>`).join('')+'</datalist>');}
- setupSectionEditor();updateBackButton();
+ updateBackButton();
 }
 function showVariationManager(){
  editorNavigation.push(draftSnapshot());editing={type:'variation-manager'};$('#dialogTitle').textContent='Variationen bearbeiten';$('#fields').innerHTML='<div id="variationManager"><label for="managerScope">Anzeigen</label><select id="managerScope"><option value="all">Alle</option><option value="global">Global</option><option value="exercise">Übungsspezifisch</option></select><div id="managerTypeField"><label for="managerType">Übungstyp</label><select id="managerType">'+typeOptions()+'</select></div><button type="button" id="managerAdd">＋ Kategorie hinzufügen</button><div id="managerList"></div></div>';
@@ -103,3 +103,4 @@ render=function(){originalRender();const container=$('#typeFilters');if(!contain
 };
 async function createStarterFile(media){return GuGuMediaStorage.exportFile({format:'gugu-starterset',version:1,exportedAt:new Date().toISOString(),media,data:GuGuProgress.starter(data,media)},`gugu-uebungsstarterset-${media?'mit':'ohne'}-medien-${new Date().toISOString().slice(0,10)}.json`);}
 document.querySelectorAll('[data-starter]').forEach(button=>button.onclick=async()=>{button.disabled=true;try{toast('Starterset wird vorbereitet …');await downloadBackup(await createStarterFile(button.dataset.starter==='media'));toast('Übungsstarterset zum Herunterladen erstellt.');}catch(error){toast(error.message||'Starterset konnte nicht erstellt werden.');}finally{button.disabled=false;}});
+

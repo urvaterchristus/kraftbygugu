@@ -6,7 +6,7 @@ for(const id of ['#editor','#blocks','#method','#emomSettings','#timerArea','#ti
 elements.get('#method').value='normal';
 let inputs=[];
 const ctx=vm.createContext({exerciseGallery:()=>'',exerciseThumbnail:()=>'',exerciseViewButtons:()=>'',suggestHistory(){},editing:{},console,structuredClone,setInterval,clearInterval,performance,document:{activeElement:null,querySelectorAll(sel){if(sel==='#blocks input[data-key]')return inputs;return []}},$:s=>elements.get(s),esc:s=>String(s??'').replaceAll('<','&lt;'),find:(type,id)=>ctx.data[type].find(x=>x.id===id),name:()=>'',toast(){},data:{workouts:[],exercises:[{id:'pull',name:'Klimmzüge',variationCategoryIds:['device','grip']}],variationCategories:[{id:'device',name:'Gerät',options:[{id:'bar',name:'Stange'},{id:'rings',name:'Ringe'}]},{id:'grip',name:'Griffart',options:[{id:'over',name:'Obergriff'}]}]},blocks:[{exerciseId:'pull',weightMode:'vest',variations:{device:{optionId:'bar'}},sets:[{reps:10,weight:10},{reps:8,weight:5}]}]});
-vm.runInContext(fs.readFileSync(root+'sections-core.js','utf8')+fs.readFileSync(root+'progress-core.js','utf8')+fs.readFileSync(root+'variation-core.js','utf8')+fs.readFileSync(root+'training-ui.js','utf8'),ctx);
+vm.runInContext(fs.readFileSync(root+'progress-core.js','utf8')+fs.readFileSync(root+'variation-core.js','utf8')+fs.readFileSync(root+'training-ui.js','utf8'),ctx);
 const run=s=>vm.runInContext(s,ctx);
 function click(op,set,extra={}){ctx.event={target:{closest:()=>({dataset:{op,block:'0',...(set===null?{}:{set:String(set)}),...extra}})}};run('handleBlockClick(event)')}
 click('variation',1,{category:'device',value:'rings'});
@@ -53,25 +53,3 @@ click('add',null);assert.equal(ctx.blocks[0].sets[3].reps,20);assert.equal(ctx.b
 ctx.blocks=[{exerciseId:'pull',measure:'seconds',sets:[{seconds:20,reps:20,weight:0}]}];click('add',null);assert.equal(ctx.blocks[0].sets[1].seconds,20);
 console.log('PASS: newly added sets copy the current last set, including kg/seconds and independent variations.');
 
-ctx.options=()=>'';ctx.uid=()=> 'normal-tail';
-const sectionUI=fs.readFileSync(root+'sections-ui.js','utf8');run(sectionUI.slice(0,sectionUI.indexOf("document.addEventListener('click'")));
-ctx.blocks=[{exerciseId:'pull',sectionId:'em',measure:'reps',sets:[{reps:9,weight:1},{reps:20,weight:3}]},{exerciseId:'pull',sectionId:'em',measure:'seconds',sets:[{seconds:10,reps:10,weight:0},{seconds:30,reps:30,weight:0}]},{exerciseId:'pull',sectionId:'normal',sets:[{reps:8,weight:0}]}];run("trainingSections=[{id:'em',method:'emom',rounds:2},{id:'normal',method:'normal',rounds:1}];activeSectionId='em'");click('add',null);assert.equal(ctx.blocks[0].sets.length,3);assert.equal(ctx.blocks[1].sets.length,3);assert.equal(ctx.blocks[2].sets.length,1);assert.equal(ctx.blocks[0].sets[2].reps,20);assert.equal(ctx.blocks[1].sets[2].seconds,30);assert.equal(run('trainingSections[0].rounds'),3);click('drop',1);assert.equal(ctx.blocks[0].sets.length,2);assert.equal(ctx.blocks[1].sets.length,2);assert.equal(ctx.blocks[2].sets.length,1);assert.equal(run('trainingSections[0].rounds'),2);console.log('PASS: EMOM add/remove synchronizes the same minute across that section only and copies current last-set values.');
-
-const pauseButton=node();elements.set('#appendPause',pauseButton);
-run("activeSectionId='em';refreshSectionComposer()");assert.equal(pauseButton.hidden,false);
-run("activeSectionId='normal';refreshSectionComposer()");assert.equal(pauseButton.hidden,false);
-ctx.blocks.push({type:'pause',minutes:2.5,sectionId:'em'});
-run("GuGuSections.resize(blocks,trainingSections[0],4);renderBlocks()");
-assert.equal(ctx.blocks.at(-1).minutes,2.5);assert.match(elements.get('#blocks').innerHTML,/data-pause="3"/);
-assert.doesNotThrow(()=>run('serializeSections()'));
-ctx.blocks=[];run('refreshSectionComposer()');assert.equal(pauseButton.hidden,true);
-console.log('PASS: pauses remain available in Normal and EMOM, survive EMOM resizing and serialize correctly.');
-
-ctx.blocks=[{exerciseId:'pull',sectionId:'em',sets:[{reps:8,weight:0}]}];
-run("trainingSections=[{id:'em',method:'emom',rounds:1}];normalAppendSection()");
-assert.equal(run('trainingSections.at(-1).method'),'normal');assert.equal(run('activeSectionId'),'normal-tail');
-run('normalAppendSection()');assert.equal(run('trainingSections.length'),2);
-const markup=run("renderSectionBlocks(blocks,(e)=>'<article>Exercise</article>')");
-assert.match(markup,/emom-group/);assert.match(markup,/data-emom-picker/);assert.doesNotMatch(markup,/section-method|section-target|Abschnitt|sectionPick/);
-run("trainingSections=[{id:'n',method:'normal'}]");ctx.blocks=[{sectionId:'n'}];assert.equal(run("renderSectionBlocks(blocks,()=>'<article>Normal</article>')"),'<article>Normal</article>');
-console.log('PASS: plain Normal list, local EMOM composer, no section selectors and automatic Normal continuation.');

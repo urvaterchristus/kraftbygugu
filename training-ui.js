@@ -10,7 +10,7 @@ function captureEditorView(anchor=document.activeElement){
 function restoreEditorView(view){
  const {editor,host,anchor}=view;
  let next;
- if(anchor)next=[...host.querySelectorAll('button[data-op],input[data-key],input[data-extra],input[data-pause],select[data-section-method],input[data-section-rounds],select[data-section-target]')].find(el=>el.tagName===anchor.tag&&Object.entries(anchor.dataset).every(([key,value])=>el.dataset[key]===value));
+ if(anchor)next=[...host.querySelectorAll('button[data-op],input[data-key],input[data-extra],input[data-pause]')].find(el=>el.tagName===anchor.tag&&Object.entries(anchor.dataset).every(([key,value])=>el.dataset[key]===value));
  if(next?.getClientRects().length)next.focus({preventScroll:true});
  const revision=++editorViewRevision;
  const restore=()=>{
@@ -56,20 +56,21 @@ function renderBlocks(openPanels=rememberBlockUI(),anchor=document.activeElement
  if(!preserve)editorViewRevision++;
  const view=preserve?captureEditorView(anchor):null,host=$('#blocks'),oldMinHeight=host.style?.minHeight||'';
  if(host.style)host.style.minHeight=(host.getBoundingClientRect().height||0)+'px';
- const renderBlock=(e,i)=>{
+ const emom=$('#method')?.value==='emom';
+ if($('#emomSettings'))$('#emomSettings').hidden=!emom;
+ if($('#appendPause'))$('#appendPause').hidden=!blocks.some(e=>e.type!=='pause');
+ $('#blocks').innerHTML=blocks.map((e,i)=>{
   if(e.type==='pause')return `<div class="pause-block"><div class="mini-head"><h3>Pause</h3><div><button type="button" data-op="up" data-block="${i}" aria-label="Pause nach oben verschieben">↑</button><button type="button" data-op="remove" data-block="${i}" aria-label="Pause entfernen">✕</button></div></div><label for="pause-${i}">Dauer (Minuten)</label><input class="pause-input" id="pause-${i}" type="number" inputmode="decimal" min="0.1" max="1440" step="any" required value="${esc(e.minutes)}" data-pause="${i}"></div>`;
-  const seconds=measureFor(e)==='seconds',defaults=`defaults-${i}`,emom=typeof sectionForEntry==='function'&&sectionForEntry(e)?.method==='emom';
+  const seconds=measureFor(e)==='seconds',defaults=`defaults-${i}`;
   return `<div class="exercise-block"><div class="mini-head"><h3 class="exercise-block-title">${exerciseThumbnail(find('exercises',e.exerciseId))}<span>${esc(e.name||name(e.exerciseId))}</span></h3><div><button type="button" data-op="up" data-block="${i}" aria-label="Übung nach oben verschieben">↑</button><button type="button" data-op="remove" data-block="${i}" aria-label="Übung entfernen">✕</button></div></div>
-   ${typeof exerciseSectionPicker==='function'?exerciseSectionPicker(e,i):''}${exerciseViewButtons(e.exerciseId,{type:editing?.type,draft:true,index:i})}<details class="variation-defaults" data-panel="${defaults}" ${openPanels.includes(defaults)?'open':''}><summary>Variationen für alle Sets <span>${esc(variationSummary(e))}</span></summary>${variationMarkup(e,i)}<button type="button" data-op="collapse" data-block="${i}">Fertig · Einklappen</button><button type="button" data-op="manage-variations" data-block="${i}">Variationen bearbeiten</button></details>
-   <div class="set-table" role="table" aria-label="Sets für ${esc(e.name||name(e.exerciseId))}"><div class="set-line set-head" role="row"><span role="columnheader">${emom?'Min.':'Set'}</span><span role="columnheader">Kg</span><span role="columnheader">${seconds?'SEK':'WDH'}</span><span role="columnheader">VAR</span><span class="sr-only" role="columnheader">Entfernen</span></div>
+   ${exerciseViewButtons(e.exerciseId,{type:editing?.type,draft:true,index:i})}<details class="variation-defaults" data-panel="${defaults}" ${openPanels.includes(defaults)?'open':''}><summary>Variationen für alle Sets <span>${esc(variationSummary(e))}</span></summary>${variationMarkup(e,i)}<button type="button" data-op="collapse" data-block="${i}">Fertig · Einklappen</button><button type="button" data-op="manage-variations" data-block="${i}">Variationen bearbeiten</button></details>
+   <div class="set-table" role="table" aria-label="Sets für ${esc(e.name||name(e.exerciseId))}"><div class="set-line set-head" role="row"><span role="columnheader">Set</span><span role="columnheader">Kg</span><span role="columnheader">${seconds?'SEK':'WDH'}</span><span role="columnheader">VAR</span><span class="sr-only" role="columnheader">Entfernen</span></div>
    ${e.sets.map((s,j)=>{
     const panel=`set-${i}-${j}`,overridden=hasSetOverrides(s),weighted=weightModeFor(e,s)!=='none';
-    return `<div class="set-line" role="row"><span role="cell" class="set-number">${j+1}</span><input aria-label="Gewicht Set ${j+1} in kg" type="number" inputmode="decimal" step="0.1" min="0" max="10000" ${weighted?'required':''} placeholder="${weighted?'kg':'–'}" value="${esc(s.weight??'')}" data-block="${i}" data-set="${j}" data-key="weight"><input aria-label="${seconds?'Sekunden':'Wiederholungen'} Set ${j+1}" required ${seconds?'type="number" min="0" max="10000" step="any" inputmode="decimal"':'type="text" inputmode="text" pattern="[0-9]+([ ]*[+][ ]*[0-9]+)*" title="Eine Zahl oder Teilwiederholungen wie 5+2"'} value="${esc(seconds?(s.seconds??s.reps??''):(s.partsText??s.reps??''))}" data-block="${i}" data-set="${j}" data-key="partsText"><button type="button" class="var-toggle ${overridden?'overridden':''}" data-op="set-variations" data-block="${i}" data-set="${j}" data-focus="var-${i}-${j}" aria-label="Variationen Set ${j+1}${overridden?' (angepasst)':''}" aria-expanded="${openPanels.includes(panel)}" aria-controls="${panel}" title="${esc(variationSummary(e,s))}">VAR${overridden?' •':''}</button><button type="button" class="drop-set" data-op="drop" data-block="${i}" data-set="${j}" aria-label="${emom?'Minute':'Set'} ${j+1} entfernen" ${emom&&e.sets.length<=1?'disabled':''}>×</button></div>
+    return `<div class="set-line" role="row"><span role="cell" class="set-number">${j+1}</span><input aria-label="Gewicht Set ${j+1} in kg" type="number" inputmode="decimal" step="0.1" min="0" max="10000" ${weighted?'required':''} placeholder="${weighted?'kg':'–'}" value="${esc(s.weight??'')}" data-block="${i}" data-set="${j}" data-key="weight"><input aria-label="${seconds?'Sekunden':'Wiederholungen'} Set ${j+1}" required ${seconds?'type="number" min="0" max="10000" step="any" inputmode="decimal"':'type="text" inputmode="text" pattern="[0-9]+([ ]*[+][ ]*[0-9]+)*" title="Eine Zahl oder Teilwiederholungen wie 5+2"'} value="${esc(seconds?(s.seconds??s.reps??''):(s.partsText??s.reps??''))}" data-block="${i}" data-set="${j}" data-key="partsText"><button type="button" class="var-toggle ${overridden?'overridden':''}" data-op="set-variations" data-block="${i}" data-set="${j}" data-focus="var-${i}-${j}" aria-label="Variationen Set ${j+1}${overridden?' (angepasst)':''}" aria-expanded="${openPanels.includes(panel)}" aria-controls="${panel}" title="${esc(variationSummary(e,s))}">VAR${overridden?' •':''}</button><button type="button" class="drop-set" data-op="drop" data-block="${i}" data-set="${j}" aria-label="Set ${j+1} entfernen">×</button></div>
      <details class="set-variation-panel" id="${panel}" data-panel="${panel}" ${openPanels.includes(panel)?'open':''}><summary class="sr-only">Variationen Set ${j+1}</summary><div class="mini-head"><strong>Variationen · Set ${j+1}</strong><button type="button" data-op="set-variations" data-block="${i}" data-set="${j}" aria-label="Variationen Set ${j+1} schließen">✕</button></div><p class="hint">${overridden?'Dieses Set hat eigene Einstellungen.':'Dieses Set verwendet die Vorgabe der Übung.'}</p>${variationMarkup(e,i,j)}<button type="button" data-op="reset-variations" data-block="${i}" data-set="${j}">Vorgabe der Übung übernehmen</button></details>`;
-   }).join('')}</div><button type="button" data-op="add" data-block="${i}">${emom?'＋ Minute hinzufügen':'＋ Set hinzufügen'}</button></div>`;
- };
- $('#blocks').innerHTML=typeof renderSectionBlocks==='function'?renderSectionBlocks(blocks,renderBlock):blocks.map(renderBlock).join('');
- if(typeof refreshSectionComposer==='function')refreshSectionComposer();
+   }).join('')}</div><button type="button" data-op="add" data-block="${i}">＋ Set hinzufügen</button></div>`;
+ }).join('');
  if(host.style)host.style.minHeight=oldMinHeight;
  if(view)restoreEditorView(view);
 }
@@ -120,9 +121,10 @@ function handleBlockClick(event){
  }
  if(op==='collapse'){const index=panels.indexOf(`defaults-${i}`);if(index>=0)panels.splice(index,1)}
  if(op==='remove')blocks.splice(i,1);
- if(op==='add'){const section=e.sectionId&&typeof sectionForEntry==='function'?sectionForEntry(e):null;if(section?.method==='emom'){if(section.rounds>=240){toast('Maximal 240 Minuten pro EMOM-Abschnitt.');return;}GuGuSections.resize(blocks,section,section.rounds+1);}else e.sets.push(structuredClone(e.sets.at(-1)||GuGuProgress.numbers(null,measureFor(e)==='seconds')));}
- if(op==='drop'){const section=e.sectionId&&typeof sectionForEntry==='function'?sectionForEntry(e):null;if(section?.method==='emom'){if(section.rounds<=1)return;GuGuSections.removeRound(blocks,section,j);}else e.sets.splice(j,1);}
- if(op==='up'&&i>0){let previous=i-1;while(previous>=0&&blocks[previous].sectionId!==e.sectionId)previous--;if(previous>=0)[blocks[previous],blocks[i]]=[blocks[i],blocks[previous]];}
+ if(op==='add')e.sets.push(structuredClone(e.sets.at(-1)||GuGuProgress.numbers(null,measureFor(e)==='seconds')));
+ if(op==='drop')e.sets.splice(j,1);
+ if(op==='up'&&i>0)[blocks[i-1],blocks[i]]=[blocks[i],blocks[i-1]];
  if(['variation','weight-mode','reset-variations'].includes(op))suggestHistory(e,j);
  renderBlocks(['remove','drop','up'].includes(op)?[]:panels,['remove','drop','up'].includes(op)?null:b);
 }
+
