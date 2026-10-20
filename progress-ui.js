@@ -12,7 +12,7 @@ function suggestHistory(entry,index=null){
 }
 function markEdited(input){const e=blocks[+input.dataset.block],s=e?.sets[+input.dataset.set];if(!s)return;const dirty=manuallyEdited.get(s)||new Set();dirty.add(input.dataset.key);manuallyEdited.set(s,dirty);}
 document.addEventListener('focusin',event=>{
- const el=event.target;if(!el.matches?.('#blocks input[data-key],#blocks input[data-extra],#blocks input[data-pause],#duration,#emomMinutes'))return;
+ const el=event.target;if(!el.matches?.('#blocks input[data-key],#blocks input[data-extra],#blocks input[data-pause],#duration'))return;
  el.dataset.beforeEdit=el.value;delete el.dataset.lastSetPrompt;el.value='';
 });
 document.addEventListener('input',event=>{if(event.target.matches?.('#blocks input[data-key]'))markEdited(event.target);});

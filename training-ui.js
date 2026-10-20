@@ -57,7 +57,6 @@ function renderBlocks(openPanels=rememberBlockUI(),anchor=document.activeElement
  const view=preserve?captureEditorView(anchor):null,host=$('#blocks'),oldMinHeight=host.style?.minHeight||'';
  if(host.style)host.style.minHeight=(host.getBoundingClientRect().height||0)+'px';
  const emom=$('#method')?.value==='emom';
- if($('#emomSettings'))$('#emomSettings').hidden=!emom;
  if($('#appendPause'))$('#appendPause').hidden=!blocks.some(e=>e.type!=='pause');
  $('#blocks').innerHTML=blocks.map((e,i)=>{
   if(e.type==='pause')return `<div class="pause-block"><div class="mini-head"><h3>Pause</h3><div><button type="button" data-op="up" data-block="${i}" aria-label="Pause nach oben verschieben">↑</button><button type="button" data-op="remove" data-block="${i}" aria-label="Pause entfernen">✕</button></div></div><label for="pause-${i}">Dauer (Minuten)</label><input class="pause-input" id="pause-${i}" type="number" inputmode="decimal" min="0.1" max="1440" step="any" required value="${esc(e.minutes)}" data-pause="${i}"></div>`;
