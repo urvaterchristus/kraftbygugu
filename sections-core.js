@@ -30,5 +30,5 @@ const GuGuSections={
 
 function sectionSummaryEntries(record){
  if(!record.sections?.length)return record.entries.map((e,i)=>entrySummary(e,i,record)).join('');
- return record.sections.map((s,i)=>`<li class="training-section-summary"><strong>Abschnitt ${i+1} · ${s.method==='emom'?'EMOM · '+s.rounds+' Min.':'Normal'}</strong></li>`+record.entries.map((e,index)=>e.sectionId===s.id?entrySummary(e,index,record):'').join('')).join('');
+ return record.sections.map((s,i)=>(s.method==='emom'?`<li class="training-section-summary"><strong>EMOM · ${s.rounds} Min.</strong></li>`:'')+record.entries.map((e,index)=>e.sectionId===s.id?entrySummary(e,index,record):'').join('')).join('');
 }
