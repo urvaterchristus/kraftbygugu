@@ -1,0 +1,15 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');const ctx=vm.createContext({console,structuredClone});
+for(const f of ['variation-core.js','progress-core.js','analytics-core.js','highscore-core.js'])vm.runInContext(fs.readFileSync(__dirname+'/../'+f,'utf8'),ctx);const H=vm.runInContext('GuGuHighscores',ctx);
+const entry=(values,mode='none',kg=0,option='bar')=>({exerciseId:'pull',measure:'reps',weightMode:mode,variations:{device:{optionId:option}},sets:values.map(reps=>({reps,weight:kg}))});
+const w=(id,entries,method='normal')=>({id,date:'2026-10-'+id.padStart(2,'0'),time:'10:00',method,entries});
+const workouts=[w('1',[entry([12,8])]),w('2',[entry([10,10,10]),entry([5,7],'vest',20)]),w('3',[entry([6,6,6],'vest',20),entry([20],'vest',10)]),w('4',[entry([9],'vest',20)]),w('5',[entry([99])],'emom')];
+const rows=H.sets(workouts,'pull','normal'),scores=H.scores(rows);
+assert.equal(scores.total.score,42);assert.equal(scores.single.score,20);assert.equal(scores.weightedTotal.weight,20);assert.equal(scores.weightedTotal.score,18);assert.equal(scores.weightedSingle.weight,20);assert.equal(scores.weightedSingle.score,9);
+assert.equal(H.scores(H.sets([workouts[0]],'pull','normal')).single.improved,false);
+const weighted=rows.filter(r=>H.matches(r,{mode:'vest',kg:20,variations:{device:'bar'}}));assert.equal(H.scores(weighted,3).total.score,18);assert.equal(H.scores(weighted,4).total,null);assert.equal(H.scores(weighted,3).single.score,6);
+assert.equal(rows.some(r=>H.matches(r,{mode:'belt'})),false);assert.equal(H.matches(rows[0],{mode:'none',variations:{device:'rings'}}),false);assert.equal(H.matches(rows[0],{mode:'none',variations:{device:'rings'}},'device'),true);
+const nine=H.sets([w('6',[entry(Array(10).fill(6))]),w('7',[entry(Array(9).fill(7))]),w('8',[entry([100])])],'pull','normal');assert.equal(H.scores(nine,9).total.score,63);assert.equal(H.scores(nine,9).single.score,7);
+const override=w('9',[entry([8,9],'none')]);override.entries[0].sets[1].weightMode='belt';override.entries[0].sets[1].weight=15;override.entries[0].sets[1].variations={device:{optionId:'rings'}};const actual=H.sets([override],'pull','normal');assert.equal(actual[1].weight,15);assert.equal(actual[1].variations.device.optionId,'rings');assert.equal(H.weightSummary(override.entries[0]),'15 kg');assert.equal(H.weightSummary(entry([5])),'');
+const timed=w('10',[{...entry([30,40]),measure:'seconds'}]);timed.entries[0].sets[1].seconds=45;assert.equal(H.scores(H.sets([timed],'pull','normal')).total.score,75);
+const before=JSON.stringify(workouts);H.scores(rows);assert.equal(JSON.stringify(workouts),before);
+console.log('PASS: four records, lexicographic kg/reps tie breaks, minimum matched sets >= threshold, exact combination/weight/method filtering, overrides, seconds, initial baseline, kg summaries and immutable data.');

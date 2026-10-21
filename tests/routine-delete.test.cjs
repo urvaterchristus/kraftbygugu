@@ -4,5 +4,5 @@ const ctx=vm.createContext({editorNavigation:[],$:id=>id==='#deleteEntry'?button
 vm.runInContext(app.slice(app.indexOf('function syncEditorDelete('),app.indexOf('function deletionBlocked(')),ctx);vm.runInContext('syncEditorDelete()',ctx);assert.equal(button.hidden,false);assert.equal(button.textContent,'Routine löschen');
 ctx.editing={type:'routines'};vm.runInContext('syncEditorDelete()',ctx);assert.equal(button.hidden,true);ctx.editing={type:'routines',id:'r'};
 vm.runInContext(app.slice(app.indexOf("$('#deleteEntry').onclick="),app.indexOf('async function moveToTrash(')),ctx);
-vm.runInContext(app.slice(app.indexOf('function card('),app.indexOf('function input(')),ctx);ctx.routine=routine;assert.doesNotMatch(vm.runInContext('card(routine)',ctx),/data-action="delete"|>Löschen</);
+vm.runInContext(fs.readFileSync(__dirname+'/../highscore-core.js','utf8'),ctx);vm.runInContext(app.slice(app.indexOf('function card('),app.indexOf('function input(')),ctx);ctx.routine=routine;assert.doesNotMatch(vm.runInContext('card(routine)',ctx),/data-action="delete"|>Löschen</);
 (async()=>{await button.onclick();assert.deepEqual(deleted,{type:'routines',id:'r'});assert.equal(editor.closed,true);console.log('PASS: saved routines delete only from editor, new routines hide delete, overview has no delete action.');})().catch(e=>{console.error(e);process.exitCode=1});

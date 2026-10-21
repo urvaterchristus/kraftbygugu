@@ -38,7 +38,7 @@ function render(){
 function entrySummary(e,index,record){
  if(e.type==='pause')return `<li class="pause-summary"><span>Pause</span><strong>${esc(e.minutes)} Min.</strong></li>`;
  const total=GuGuDashboard.exerciseTotal(e,find('exercises',e.exerciseId));
- const exercise=find('exercises',e.exerciseId);return `<li class="exercise-summary"><div class="summary-exercise">${exerciseThumbnail(exercise)}<span>${esc(e.name||name(e.exerciseId))}</span></div><strong>${total.total.toLocaleString('de-DE')} ${total.unit}</strong>${exercise?`<div class="summary-actions">${exerciseViewButtons(exercise.id,{type:tab,recordId:record?.id,index})}</div>`:''}</li>`;
+ const exercise=find('exercises',e.exerciseId);return `<li class="exercise-summary"><div class="summary-exercise">${exerciseThumbnail(exercise)}<span>${esc(e.name||name(e.exerciseId))}</span></div><strong>${total.total.toLocaleString('de-DE')} ${total.unit}${GuGuHighscores.weightSummary(e)?'<small class="summary-weight">'+esc(GuGuHighscores.weightSummary(e))+'</small>':''}</strong>${exercise?`<div class="summary-actions">${exerciseViewButtons(exercise.id,{type:tab,recordId:record?.id,index})}</div>`:''}</li>`;
 }
 function card(x){
  let content='';
